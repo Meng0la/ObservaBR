@@ -1,0 +1,15 @@
+node_modules/
+.tools/
+.env
+.env.*
+!.env.example
+
+dist/
+coverage/
+*.log
+*.pass
+*.pem
+*.key
+
+backups/
+postgres-data/

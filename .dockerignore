@@ -1,0 +1,12 @@
+.git
+.tools
+.agents
+.codex
+.aws
+.env
+.env.*
+**/node_modules
+**/dist
+**/*.log
+coverage
+test-results

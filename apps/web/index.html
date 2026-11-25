@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10181a">
+  <meta name="description" content="Consulta independente de registros públicos brasileiros, com cobertura e evidências documentadas.">
+  <title>ObservaBR · Panorama</title>
+  <link rel="icon" type="image/svg+xml" href="/mark.svg">
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <a class="skip" href="#conteudo">Pular para o conteúdo</a>
+  <header class="masthead">
+    <a class="brand" href="#panorama" aria-label="ObservaBR, início">Observa<span>BR</span><i aria-hidden="true"></i></a>
+    <span class="brand-caption">Inteligência pública independente</span>
+    <div class="header-links"><a href="#metodologia">Metodologia</a><a href="#fontes">Fontes</a><a href="#apoiar">Apoiar o projeto</a><button id="theme" class="icon-button" type="button" aria-label="Alternar tema"></button></div>
+  </header>
+  <nav aria-label="Navegação principal" id="nav"></nav>
+  <div class="workspace">
+    <header class="topbar">
+      <form id="search" role="search" autocomplete="off"><span id="search-icon"></span><input aria-label="Pesquisa global" name="q" type="search" maxlength="120" placeholder="Pesquisar no ObservaBR" list="suggestions"><datalist id="suggestions"></datalist><kbd>/</kbd></form>
+    </header>
+    <main id="conteudo" tabindex="-1" aria-busy="true"></main>
+    <footer><span>ObservaBR · Projeto independente de dados públicos</span><div class="actions"><a href="#privacidade">Privacidade</a><a href="#licenca">Licenciamento</a><a href="#fontes">Fontes e cobertura</a><a href="#sistema">Design system</a></div></footer>
+  </div>
+  <dialog id="evidence" aria-labelledby="evidence-title"><header><h2 id="evidence-title">Fonte original</h2><form method="dialog"><button class="icon-button" aria-label="Fechar">×</button></form></header><div id="evidence-body"></div></dialog>
+</body>
+</html>

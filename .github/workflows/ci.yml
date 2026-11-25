@@ -1,0 +1,81 @@
+name: Verificação
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres-test:
+        image: postgres:17.12-bookworm
+        env:
+          POSTGRES_DB: observabr_test
+          POSTGRES_PASSWORD: ci-ephemeral-test
+        ports:
+          - 127.0.0.1:55433:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 3s --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.3
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - name: Executar testes com banco isolado
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:ci-ephemeral-test@127.0.0.1:55433/observabr_test
+        run: |
+          for migration in supabase/migrations/*.sql; do
+            psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f "$migration"
+          done
+          npm test
+      - name: Compilar e verificar separação de segredos
+        shell: bash
+        run: |
+          export BUILD_SECRET_CANARY="$(openssl rand -hex 32)"
+          export DATABASE_URL="postgresql://build:$BUILD_SECRET_CANARY@localhost/observabr_test"
+          export SUPABASE_SERVICE_ROLE_KEY="$BUILD_SECRET_CANARY"
+          export WRITER_PASSWORD="$BUILD_SECRET_CANARY"
+          npm run build
+          node tests/client-secrets.mjs
+      - name: Verificar dashboard em Chromium
+        run: |
+          npx --no-install playwright install --with-deps chromium
+          node --test apps/web/tests/browser.test.mjs
+      - run: npm audit --omit=dev --audit-level=high
+      - name: Verificar imagem, migrações e API de leitura
+        shell: bash
+        run: |
+          for key in POSTGRES_PASSWORD READER_PASSWORD WRITER_PASSWORD; do
+            printf '%s=%s\n' "$key" "$(openssl rand -hex 24)" >> .env
+          done
+          docker compose up -d --build api
+          curl --retry 20 --retry-delay 2 --retry-all-errors -fsS http://127.0.0.1:3000/api/summary | jq -e '.counts and .states'
+          node tests/http-smoke.mjs
+          docker compose exec -T db psql -U postgres -d observabr -v ON_ERROR_STOP=1 -f - < tests/database-smoke.sql
+      - if: always()
+        run: if [ -f .env ]; then docker compose down --volumes; fi
+  secrets:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Examinar histórico de segredos
+        run: docker run --rm -v "$PWD:/repo:ro" zricethezav/gitleaks:v8.24.2 git /repo --redact
+  codeql:
+    if: github.event.repository.visibility == 'public'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          build-mode: none
+      - uses: github/codeql-action/analyze@v4

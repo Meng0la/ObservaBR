@@ -1,0 +1,41 @@
+{
+  "name": "observabr",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24.15 <25"
+  },
+  "scripts": {
+    "start": "node apps/api/index.ts",
+    "worker": "node apps/worker/index.ts",
+    "build": "vite build apps/web",
+    "dev": "vite apps/web",
+    "test": "node --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/helmet": "13.2.0",
+    "@fastify/rate-limit": "10.3.0",
+    "@fastify/static": "10.1.12",
+    "@fontsource-variable/manrope": "5.3.0",
+    "@fontsource-variable/newsreader": "5.3.0",
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "cytoscape": "3.35.0",
+    "echarts": "6.1.0",
+    "fastify": "5.12.8",
+    "ipaddr.js": "2.5.0",
+    "maplibre-gl": "6.19.0",
+    "pg": "8.23.1",
+    "undici": "7.30.2",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1",
+    "@types/node": "24.10.1",
+    "@types/pg": "8.23.1",
+    "typescript": "5.9.3",
+    "vite": "8.3.8"
+  }
+}

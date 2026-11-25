@@ -1,0 +1,52 @@
+name: observabr
+services:
+  db:
+    image: postgres:17.12-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: observabr
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}
+      READER_PASSWORD: ${READER_PASSWORD:?Defina READER_PASSWORD no .env}
+      WRITER_PASSWORD: ${WRITER_PASSWORD:?Defina WRITER_PASSWORD no .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./supabase/migrations:/migrations:ro
+      - ./infrastructure/init-db.sh:/docker-entrypoint-initdb.d/01-init.sh:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres", "-d", "observabr"]
+      interval: 5s
+      timeout: 4s
+      retries: 20
+
+  api:
+    build: .
+    restart: unless-stopped
+    init: true
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGUSER: observabr_api
+      PGPASSWORD: ${READER_PASSWORD:?Defina READER_PASSWORD no .env}
+      NODE_OPTIONS: --import=/app/infrastructure/database-env.mjs
+      HOST: 0.0.0.0
+      PORT: 3000
+    ports:
+      - "127.0.0.1:${PORT:-3000}:3000"
+
+  worker:
+    build: .
+    restart: unless-stopped
+    init: true
+    command: ["npm", "run", "worker"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGUSER: observabr_scout
+      PGPASSWORD: ${WRITER_PASSWORD:?Defina WRITER_PASSWORD no .env}
+      COLLECTION_YEAR: ${COLLECTION_YEAR:-}
+      NODE_OPTIONS: --import=/app/infrastructure/database-env.mjs
+
+volumes:
+  postgres_data:
