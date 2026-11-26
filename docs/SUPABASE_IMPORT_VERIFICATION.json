@@ -59,5 +59,7 @@
       "sha256": "ce5589351e4e53c79e3fa913d8314ef5665e472fd1de447af8ecc542b35fc6a9",
       "matches": true
     }
-  ]
+  ],
+  "snapshotCreatedAt": "2026-11-26T11:55:09.202Z",
+  "scope": "Import snapshot before cloud processing; operational tables can change afterwards"
 }

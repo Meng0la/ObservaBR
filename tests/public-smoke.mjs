@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict'
+const base=new URL(process.env.OBSERVABR_PUBLIC_URL||'https://observabr.onrender.com')
+assert.equal(base.protocol,'https:','O smoke público exige HTTPS')
+async function get(path,status=200) {
+  const response=await fetch(new URL(path,base),{headers:{Accept:'application/json'},signal:AbortSignal.timeout(30000)})
+  assert.equal(response.status,status,path)
+  return response
+}
+assert.equal((await (await get('/api/health')).json()).status,'ok')
+const summary=await (await get('/api/summary')).json()
+assert.ok(summary.counts.politician>=513)
+const directory=await (await get('/api/records?kind=politician&party=PT&uf=SP&sort=name-asc')).json()
+assert.ok(directory.total>0)
+assert.ok(directory.items.every(row=>row.data.party==='PT'&&row.data.uf==='SP'))
+const csv=await get('/api/records?kind=politician&party=PT&uf=SP&format=csv')
+assert.match(csv.headers.get('content-type'),/text\/csv/)
+assert.match(csv.headers.get('content-disposition'),/attachment/)
+assert.match(await csv.text(),/source_url,api_url,sha256/)
+const vote=await (await get('/api/votes/2520670-66')).json()
+assert.equal(vote.context.score.total,402)
+assert.equal(vote.nominalTotal,404)
+const evidence=await (await get('/api/evidence/vote/2520670-66')).json()
+assert.ok(evidence.documents.length>0)
+assert.ok(evidence.documents.every(doc=>/^[a-f0-9]{64}$/.test(doc.sha256)&&!Object.hasOwn(doc,'raw')))
+await get('/api/records?page=0',400)
+await get('/api/votes/invalid',400)
+await get('/api/records/politician/registro-inexistente',404)
+console.log('HTTPS público: saúde, índice, filtros reais, CSV, placar, votos, evidências e validação aprovados.')
