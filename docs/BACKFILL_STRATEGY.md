@@ -86,3 +86,11 @@ Validação local final: 33 testes aprovados, dois contratos externos opcionais 
 Todas as migrations canônicas passaram novamente em banco vazio, incluindo a nova: 17 tabelas com RLS, reader sem bruto e com leitura dos campos de escopo. EXPLAIN ANALYZE local sobre o consumidor financeiro/2025 usou jobs_period e mediu 0,152 ms nessa amostra; não é p95 nem previsão de produção. Baseline remoto reconsultado ao final: mesmas contagens e estados, sem schema de engenharia aplicado.
 
 Entrega: commit 99e697e no PR #1 em rascunho. [CI aprovada](https://github.com/Meng0la/ObservaBR/actions/runs/45867426049): secrets, CodeQL e verify, incluindo navegador, Docker, migrations e API reader. Nenhum merge/deploy ou cron geral ativado. O checkpoint posterior é apenas documental e não altera o código validado.
+
+## Publicação futura e rollback
+
+Após autorização explícita: conferir backup/checkpoint e catálogo; aplicar 20261126160503_data_engineering e 20261126171500_backfill_coverage na ordem; publicar o runtime validado; testar reader, aliases e /api/coverage; só então repetir dry-run e considerar conciliação financeira/seed revisado. Ativação de cron geral continua sendo uma decisão separada. O schema novo deve preceder o runtime que o consulta.
+
+Se houver falha após publicação, interromper o consumidor geral e novas execuções manuais antes de trocar o runtime; preservar o lock e os checkpoints. Não entregar tarefas roster:period ao consumidor antigo, que não entende esse contrato. Preparar rollback em branch/PR próprio, com autorização, usando código compatível com os aliases já existentes. O commit 7033707 é referência de código anterior à extensão, mas precisa de build/deploy e verificação próprios; não é um artefato Render previamente publicado.
+
+Manter migrations aditivas, RLS, evidências, observações e histórico; não usar reset, DROP ou exclusão em massa como rollback. Se IDs financeiros já tiverem sido conciliados, o runtime anterior à implementação de aliases (como o antigo deploy 8124696) não é rollback seguro, pois quebraria URLs antigas. Valores e identidades exigem plano de reconciliação inversa revisado, não UPDATE genérico. Restaurar backup somente em destino isolado para comparação antes de qualquer recuperação operacional autorizada.
