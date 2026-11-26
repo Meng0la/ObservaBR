@@ -2,7 +2,7 @@
 Checkpoint de 26/11/2026. Etapa atual é enriquecimento legislativo, correção das votações e API Explorer, autorizada após o envio da Fase 02 ao GitHub. Implementação concluída e validada, incluindo o caso real do PLP 128/2025.
 
 ## Git e entrega
-Repositório origin em https://github.com/Meng0la/ObservaBR.git, branch main. O envio inicial da Fase 02 foi concluído no commit f9512fa. O commit inicial anterior é 906434c. A implementação desta etapa está pronta para envio no mesmo repositório. A ausência de Git descrita na Fase 01 pertence ao histórico anterior.
+Repositório origin em https://github.com/Meng0la/ObservaBR.git, branch main. O envio inicial da Fase 02 foi concluído no commit f9512fa. O commit inicial anterior é 906434c. A implementação desta etapa foi enviada no commit 96ebbb8. A ausência de Git descrita na Fase 01 pertence ao histórico anterior.
 
 ## Implementado nesta etapa
 - Coletor complementar com registro fechado de recursos da Câmara, validação de identidade e evidência por campo, incluindo SHA-256.
