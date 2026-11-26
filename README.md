@@ -36,6 +36,8 @@ Para atender apenas as solicitações complementares da interface, mantenha node
 
 ## Engenharia de dados — validação controlada
 
+A extensão de [backfill e sincronização](docs/BACKFILL_STRATEGY.md) prioriza 2026, 2025, 2023 e 2024. `node scripts/backfill.ts --limit=25` gera dry-run dos escopos ausentes; o consumidor aceita `--years=2026,2025,2023,2024` e reserva oportunidades para revalidação. `GET /api/coverage?kind=expense&year=2026&by=period` oferece grupos por representante, fonte, categoria e período; ausência de dados não significa ausência de gastos. [Métricas reais](docs/BACKFILL_METRICS.json) distinguem produção inalterada de piloto PostgreSQL local. As duas migrations de engenharia continuam pendentes no remoto; a nova rota só deve ser publicada após a atualização autorizada do schema.
+
 Relatório incremental: [DATA_ENGINEERING_VALIDATION.md](docs/DATA_ENGINEERING_VALIDATION.md). Implementados CLI de lote geral limitado e workflow manual independente, conciliação dry-run com plano por hash, aliases, dead-letter, quarentena e ciclos de cobertura. Produção não recebeu esta branch nem a conciliação financeira; o agendamento complementar existente foi preservado.
 
 Com schema de engenharia instalado em banco isolado e DATABASE_URL writer: `node scripts/collect-batch.ts --kind=expense --owner=204379 --year=2025 --max-tasks=1 --max-seconds=120`. Retoma checkpoints, sem reset. O script `node scripts/reidentify-expenses.ts --owner=204379 --year=2025` apenas planeja por padrão; aplicar exige hash e autorização operacional. O arquivo anual diverge da API; não inverter sinais ou publicar uma fusão por heurística.

@@ -1,5 +1,6 @@
 # ObservaBR — instruções permanentes
 ## Engenharia de dados
+Backfill prioriza 2026, 2025, 2023 e 2024; períodos anteriores exigem expansão explícita. Preservar datas de evento, competência, coleta e verificação separadas. Cadastro histórico não substitui partido atual. Cobertura parcial/sem denominador nunca vira percentual integral ou alegação de ausência de gastos/atividade. Seguir BACKFILL_STRATEGY.md e manter seed/cron geral remotos sujeitos aos gates operacionais existentes.
 Conciliação de despesas e agendamento geral exigem piloto isolado, dry-run revisável e autorização operacional explícita antes da produção. Preservar bytes, revisões e aliases; não excluir registros para resolver colisões. Manter o agendamento complementar separado. A etapa não autoriza coleta massiva, serviços faturáveis, módulo judicial ou IA. Atualizar DATA_ENGINEERING_VALIDATION.md e os documentos de continuidade após cada marco.
 
 ## Missão

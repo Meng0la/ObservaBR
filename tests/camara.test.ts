@@ -12,9 +12,11 @@ test('aceita só identificadores institucionais e constrói destinos fixos', () 
   assert.throws(() => collectionUrl({ ...expenses, owner: 'https://127.0.0.1' }))
   assert.throws(() => collectionUrl({ kind: 'ballot', owner: '../votacoes', year: 2025 }))
   assert.throws(() => collectionUrl({ kind: 'vote', year: 2025, month: 13 }))
-  const url = collectionUrl({ kind: 'politician', name: 'Maria & João', year: 2025 })
+  const url = collectionUrl({ kind: 'politician', name: 'Maria & João', year: 2025,roster:'period' })
   assert.equal(url.searchParams.get('nome'), 'Maria & João')
   assert.equal(url.hostname, 'dadosabertos.camara.leg.br')
+  assert.equal(url.searchParams.get('dataInicio'),'2025-01-01')
+  assert.equal(url.searchParams.get('dataFim'),'2025-12-31')
   assert.equal(collectionUrl({ kind: 'vote', year: 2024, month: 2 }).searchParams.get('dataFim'), '2024-02-29')
 })
 
@@ -58,6 +60,16 @@ test('mantém coautorias e preserva o voto registrado sem inferir ausências', (
   assert.equal(record.owner, '123')
   assert.equal(record.data.voteId, '100-2')
   assert.throws(() => page(ballot, [{ tipoVoto: 'Sim' }]))
+})
+
+test('cadastro anual conserva variantes partidárias sem atribuir partido atual',()=>{
+ const task:Task={kind:'politician',year:2026,roster:'period'}
+ const row={id:123,nome:'Pessoa de teste',siglaPartido:'A',siglaUf:'DF'}
+ const result=page(task,[row,{...row,siglaPartido:'B'}])
+ assert.equal(result.records.length,1);assert.equal(result.observations.length,2)
+ assert.equal(result.records[0].data.party,null)
+ assert.equal(result.duplicates,0);assert.equal(result.representationVariants,1)
+ assert.throws(()=>page(task,[row,{...row,nome:'Outra pessoa'}]))
 })
 
 test('contrato oficial ao vivo: cinco recursos e resposta nominal', { skip: !process.env.OBSERVABR_LIVE }, async () => {

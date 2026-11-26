@@ -1,4 +1,5 @@
 # Roteiro de implementação
+Backfill e sincronização implementados para revisão: anos 2026, 2025, 2023, 2024; períodos anteriores somente por expansão explícita. Cadastros temporais separados do perfil atual; cobertura por representante/fonte/categoria/período via API. Piloto local de 2026 medido antes/depois, sem expansão remota. Consulte BACKFILL_STRATEGY.md. Arquivos oficiais completos são preferência de bootstrap após homologação, sem promoção automática de valores divergentes.
 Etapa atual autorizada: engenharia de dados e fechamento progressivo da Câmara. Conciliação em isolamento validada; lote geral, cobertura, backup e métricas em implementação. Produção aguarda aprovação operacional para conciliação e agendamento geral. Consulte DATA_ENGINEERING_VALIDATION.md.
 
 ## Frequência e Atividade — planejamento futuro

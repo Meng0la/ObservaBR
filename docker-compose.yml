@@ -46,6 +46,7 @@ services:
       PGUSER: observabr_scout
       PGPASSWORD: ${WRITER_PASSWORD:?Defina WRITER_PASSWORD no .env}
       COLLECTION_YEAR: ${COLLECTION_YEAR:-}
+      SCOUT_COLLECTION_YEARS: ${SCOUT_COLLECTION_YEARS:-}
       NODE_OPTIONS: --import=/app/infrastructure/database-env.mjs
 
 volumes:

@@ -1,4 +1,5 @@
 # Armazenamento híbrido — planejamento
+Backfill de 2026: arquivo anual oficial medido com 128.906 linhas em 4.802.417 bytes ZIP e 48.101.007 CSV. Staging privado local, sem mover produção. Piloto PostgreSQL isolado cresceu de 16.881.331 para 18.200.243 bytes, incluindo 215 novos registros, snapshots, índices e filas; não extrapolar como densidade universal. Rota de cobertura separa observações parciais de escopos completos. Estratégia e números em BACKFILL_STRATEGY.md/BACKFILL_METRICS.json.
 Medição de 26/11/2026: banco remoto 21.124.787 bytes; records 2.433.024 de tabela + 3.244.032 de índices; revisões 2.039.808 + 81.920. Não extrapolar uma taxa diária a partir de um snapshot. A prova local com dados reais, Parquet/Zstandard e DuckDB está em preparação; produção permanece inteiramente no PostgreSQL.
 
 Hoje todos os registros, documentos e revisões residem em PostgreSQL. Antes de arquivar, medir bytes por tipo, crescimento diário, p95 de consultas, WAL, tempo de backup e custo de restauração.

@@ -1,4 +1,5 @@
 # Modelo de ameaças
+Backfill: seed limitado por capacidade, plano por hash e lock comum; nenhuma reabertura automática de falhas/quarentena. Cadastro histórico não sobrescreve filiação atual e variantes partidárias não se tornam identidades diferentes. API de cobertura somente leitura, filtros validados e snapshot consistente, sem percentuais quando o denominador não é homologado. Arquivo anual completo permanece privado em staging; ausência de registros não indica ausência de gastos ou atividades.
 Nesta etapa, conciliação exige dry-run verificável por hash, conferência de evidências/NUMERIC e autorização operacional para produção. Colisão de destino aborta sem excluir registros; aliases mantêm links e histórico anterior. O advisory lock é compartilhado com o Scout. Métricas do Advisor são apenas um controle entre outros, não prova de ausência de vulnerabilidades.
 
 A fronteira pública termina na API de leitura e no acionamento controlado de trabalhos. Só o worker acessa a Câmara. Um parâmetro de usuário nunca escolhe o host de coleta. Consultas SQL usam parâmetros. A interface trata títulos externos como texto.

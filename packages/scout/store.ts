@@ -8,7 +8,8 @@ import {publicResponse} from '../security/public-response.ts'
 type Page = ReturnType<typeof collect> extends AsyncGenerator<infer P, unknown, unknown> ? P : never
 export type Task = Parameters<typeof collect>[0]
 export function jobKey(t:Task) {
-  return JSON.stringify([t.kind,t.owner??null,t.year,t.month??null,t.name?.toLowerCase()??null])
+  const key=[t.kind,t.owner??null,t.year,t.month??null,t.name?.toLowerCase()??null]
+  return JSON.stringify(t.roster?[...key,t.roster]:key)
 }
 export async function enqueue(db:pg.PoolClient, task:Task, priority=10) {
   await db.query('insert into collection_jobs(key,kind,task,priority) values($1,$2,$3,$4) on conflict do nothing',[jobKey(task),task.kind,task,priority])
@@ -39,7 +40,10 @@ export async function persist(db:pg.PoolClient, key:string, task:Task, page:Page
         amount=excluded.amount,data=excluded.data,source_url=excluded.source_url,api_url=excluded.api_url,
         field=excluded.field,sha256=excluded.sha256,verified_at=now(),search_text=excluded.search_text,
         collected_at=case when (records.sha256,records.api_url) is distinct from (excluded.sha256,excluded.api_url) then now() else records.collected_at end
-        where not(records.kind='vote' and exists(select 1 from entity_contexts c where c.kind=records.kind and c.external_id=records.id))`,
+        where not(records.kind='vote' and exists(select 1 from entity_contexts c where c.kind=records.kind and c.external_id=records.id))
+        and (records.kind<>'politician' or (($7::jsonb->>'rosterMode') is distinct from 'period' and
+         case when records.data->>'rosterYear'~'^[0-9]{4}$' then (records.data->>'rosterYear')::int else extract(year from records.collected_at)::int end
+          <=($7::jsonb->>'rosterYear')::int))`,
         [r.kind,r.id,r.owner,r.title,r.date,r.amount,r.data,r.sourceUrl,page.url,r.field,hash,search])
       if(r.kind==='politician') {
         for(const kind of ['expense','proposal'] as const) await enqueue(db,{kind,owner:r.id,year:task.year},task.name?2:20)

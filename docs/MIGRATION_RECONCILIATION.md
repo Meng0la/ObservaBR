@@ -10,6 +10,7 @@ Projeto exclusivamente ajhvfqqooqamnoqxqnvh. Nenhum reset, reaplicação de sche
 | Bootstrap operacional privado | 20261126115334_cloud_service_roles | Representação versionada sanitizada; sem senha e sem criar logins em instalação nova. |
 | 20261126115704_cloud_security | 20261126115831_cloud_security | Nome local alinhado ao registro remoto aplicado. |
 | Nova engenharia | 20261126160503_data_engineering | Pendente no remoto; validada somente em bancos isolados. |
+| Extensão Backfill/cobertura | 20261126171500_backfill_coverage | Pendente no remoto; contador de revalidação, períodos de ciclo e índice, sem inferir datas de ciclos antigos. |
 
 As duas entradas de baseline foram registradas em transação com o lock comum e verificação de que a estrutura não mudou desde a auditoria. Conferência posterior mostrou exatamente as cinco versões canônicas históricas no remoto. As versões representam os artefatos; não afirmam o horário real da execução manual original. A mudança foi restrita a supabase_migrations.schema_migrations. Código e dados publicados não foram alterados.
 

@@ -2,6 +2,7 @@ import {setTimeout as sleep} from 'node:timers/promises'
 import {database} from '../../packages/database/index.ts'
 import {enqueue} from '../../packages/scout/store.ts'
 import {generalBatch,validateBatch,type BatchConfig} from '../../packages/scout/general-batch.ts'
+import {backfillYears} from '../../packages/scout/backfill.ts'
 import {runNextEnrichment} from '../../packages/scout/enrichment.ts'
 
 const batch=process.argv.includes('--enrichment-batch')
@@ -44,6 +45,7 @@ try {
     const year=Number(process.env.COLLECTION_YEAR||now.getUTCFullYear())
     if(!Number.isInteger(year)||year<2008||year>now.getUTCFullYear()) throw new Error('COLLECTION_YEAR inválido')
     const config:BatchConfig={kinds:['politician','expense','proposal','vote','ballot'],year,
+      years:process.env.SCOUT_COLLECTION_YEARS?process.env.SCOUT_COLLECTION_YEARS.split(',').map(Number):process.env.COLLECTION_YEAR?[year]:backfillYears(),
       maxTasks:maxJobs,maxSeconds,maxRequests:Number(process.env.SCOUT_MAX_REQUESTS||12),
       maxBytes:Number(process.env.SCOUT_MAX_BYTES||3*1024*1024),databaseLimitBytes:Number(process.env.DATABASE_LIMIT_BYTES||500_000_000),
       maxPending:Number(process.env.SCOUT_MAX_PENDING||10000)}

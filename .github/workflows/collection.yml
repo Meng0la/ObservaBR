@@ -9,8 +9,11 @@ on:
         default: politician
       year:
         description: Ano de referência
-        default: '2025'
+        default: '2026'
         required: true
+      years:
+        description: Anos em ordem de prioridade (opcional, substitui ano único)
+        default: ''
       month:
         description: Mês das tarefas de votação (opcional)
         default: ''
@@ -44,11 +47,13 @@ jobs:
           timeout --signal=TERM --kill-after=30s 660s node scripts/collect-batch.ts
           "--kind=$COLLECTION_KIND" "--year=$COLLECTION_YEAR" "--month=$COLLECTION_MONTH"
           "--owner=$COLLECTION_OWNER" "--max-tasks=$MAX_TASKS" "--max-seconds=$MAX_SECONDS"
+          "--years=$COLLECTION_YEARS"
         env:
           DATABASE_URL: ${{ secrets.OBSERVABR_SCOUT_DATABASE_URL }}
           NODE_EXTRA_CA_CERTS: ${{ github.workspace }}/infrastructure/certs/supabase-prod-ca-2021.crt
           COLLECTION_KIND: ${{ inputs.kind }}
           COLLECTION_YEAR: ${{ inputs.year }}
+          COLLECTION_YEARS: ${{ inputs.years }}
           COLLECTION_MONTH: ${{ inputs.month }}
           COLLECTION_OWNER: ${{ inputs.owner }}
           MAX_TASKS: ${{ inputs.max_tasks }}

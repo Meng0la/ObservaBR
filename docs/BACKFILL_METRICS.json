@@ -1,0 +1,1455 @@
+{
+  "at": "2026-11-26T17:14:43.539Z",
+  "environment": "isolated copy; not remote before/after",
+  "before": [
+    {
+      "kind": "ballot",
+      "published": 404,
+      "representatives": 404,
+      "missing_event_date": 0,
+      "event_start": "2025-12-17",
+      "event_end": "2025-12-17"
+    },
+    {
+      "kind": "expense",
+      "published": 100,
+      "representatives": 1,
+      "missing_event_date": 7,
+      "event_start": "2025-01-01",
+      "event_end": "2025-04-04"
+    },
+    {
+      "kind": "politician",
+      "published": 513,
+      "representatives": 0,
+      "missing_event_date": 513,
+      "event_start": null,
+      "event_end": null
+    },
+    {
+      "kind": "proposal",
+      "published": 160,
+      "representatives": 1,
+      "missing_event_date": 109,
+      "event_start": "2015-09-03",
+      "event_end": "2025-12-17"
+    },
+    {
+      "kind": "vote",
+      "published": 1585,
+      "representatives": 0,
+      "missing_event_date": 0,
+      "event_start": "2025-12-01",
+      "event_end": "2025-12-23"
+    }
+  ],
+  "after": [
+    {
+      "kind": "ballot",
+      "published": 404,
+      "representatives": 404,
+      "missing_event_date": 0,
+      "event_start": "2025-12-17",
+      "event_end": "2025-12-17"
+    },
+    {
+      "kind": "expense",
+      "published": 200,
+      "representatives": 1,
+      "missing_event_date": 15,
+      "event_start": "2025-01-01",
+      "event_end": "2026-05-22"
+    },
+    {
+      "kind": "politician",
+      "published": 515,
+      "representatives": 0,
+      "missing_event_date": 515,
+      "event_start": null,
+      "event_end": null
+    },
+    {
+      "kind": "proposal",
+      "published": 173,
+      "representatives": 1,
+      "missing_event_date": 109,
+      "event_start": "2015-09-03",
+      "event_end": "2026-08-28"
+    },
+    {
+      "kind": "vote",
+      "published": 1685,
+      "representatives": 0,
+      "missing_event_date": 0,
+      "event_start": "2025-12-01",
+      "event_end": "2026-11-26"
+    }
+  ],
+  "beforeQueue": [
+    {
+      "status": "done",
+      "tasks": 7
+    },
+    {
+      "status": "failed",
+      "tasks": 1
+    },
+    {
+      "status": "queued",
+      "tasks": 2608
+    }
+  ],
+  "afterQueue": [
+    {
+      "status": "done",
+      "tasks": 7
+    },
+    {
+      "status": "failed",
+      "tasks": 1
+    },
+    {
+      "status": "quarantined",
+      "tasks": 1
+    },
+    {
+      "status": "queued",
+      "tasks": 2712
+    }
+  ],
+  "runs": [
+    {
+      "tasks": 1,
+      "pages": 0,
+      "records": 0,
+      "failures": 1,
+      "bytes": "35336",
+      "requests": 1,
+      "status": "task_limit",
+      "seconds": 1.720037
+    },
+    {
+      "tasks": 1,
+      "pages": 1,
+      "records": 100,
+      "failures": 0,
+      "bytes": "49362",
+      "requests": 1,
+      "status": "task_limit",
+      "seconds": 0.767221
+    },
+    {
+      "tasks": 1,
+      "pages": 1,
+      "records": 13,
+      "failures": 0,
+      "bytes": "5981",
+      "requests": 1,
+      "status": "task_limit",
+      "seconds": 1.193866
+    },
+    {
+      "tasks": 1,
+      "pages": 1,
+      "records": 100,
+      "failures": 0,
+      "bytes": "43930",
+      "requests": 1,
+      "status": "task_limit",
+      "seconds": 2.796562
+    },
+    {
+      "tasks": 1,
+      "pages": 0,
+      "records": 0,
+      "failures": 0,
+      "bytes": "0",
+      "requests": 2,
+      "status": "budget",
+      "seconds": 29.991452
+    },
+    {
+      "tasks": 1,
+      "pages": 1,
+      "records": 85,
+      "failures": 0,
+      "bytes": "35336",
+      "requests": 1,
+      "status": "task_limit",
+      "seconds": 0.815534
+    }
+  ],
+  "coverage2026": [
+    {
+      "source": "camara",
+      "kind": "expense",
+      "eventDateMeaning": "document_issue_date; financial period comes from year/month",
+      "requestedYear": 2026,
+      "groupBy": "source",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 1,
+      "scopeTotal": 515,
+      "totals": {
+        "published": 100,
+        "distinct_entities": 100,
+        "representatives": 1,
+        "missing_event_date": 8,
+        "first_event": "2026-01-11",
+        "last_event": "2026-05-22",
+        "first_collected": "2026-11-26T17:09:36.419Z",
+        "last_collected": "2026-11-26T17:09:36.419Z",
+        "last_verified": "2026-11-26T17:09:36.419Z",
+        "unattributed_period_records": 0,
+        "indexed_roster": 515
+      },
+      "groups": [
+        {
+          "dimension": "camara",
+          "published": 100,
+          "distinct_entities": 100,
+          "representatives": 1,
+          "missing_event_date": 8,
+          "first_event": "2026-01-11",
+          "last_event": "2026-05-22",
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        }
+      ],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "expense",
+      "eventDateMeaning": "document_issue_date; financial period comes from year/month",
+      "requestedYear": 2026,
+      "groupBy": "representative",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 1,
+      "scopeTotal": 515,
+      "totals": {
+        "published": 100,
+        "distinct_entities": 100,
+        "representatives": 1,
+        "missing_event_date": 8,
+        "first_event": "2026-01-11",
+        "last_event": "2026-05-22",
+        "first_collected": "2026-11-26T17:09:36.419Z",
+        "last_collected": "2026-11-26T17:09:36.419Z",
+        "last_verified": "2026-11-26T17:09:36.419Z",
+        "unattributed_period_records": 0,
+        "indexed_roster": 515
+      },
+      "groups": [
+        {
+          "dimension": "204379",
+          "published": 100,
+          "distinct_entities": 100,
+          "representatives": 1,
+          "missing_event_date": 8,
+          "first_event": "2026-01-11",
+          "last_event": "2026-05-22",
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        }
+      ],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "expense",
+      "eventDateMeaning": "document_issue_date; financial period comes from year/month",
+      "requestedYear": 2026,
+      "groupBy": "category",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 6,
+      "scopeTotal": 515,
+      "totals": {
+        "published": 100,
+        "distinct_entities": 100,
+        "representatives": 1,
+        "missing_event_date": 8,
+        "first_event": "2026-01-11",
+        "last_event": "2026-05-22",
+        "first_collected": "2026-11-26T17:09:36.419Z",
+        "last_collected": "2026-11-26T17:09:36.419Z",
+        "last_verified": "2026-11-26T17:09:36.419Z",
+        "unattributed_period_records": 0,
+        "indexed_roster": 515
+      },
+      "groups": [
+        {
+          "dimension": "COMBUSTÍVEIS E LUBRIFICANTES.",
+          "published": 41,
+          "distinct_entities": 41,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-01-13",
+          "last_event": "2026-04-30",
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        },
+        {
+          "dimension": "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.",
+          "published": 26,
+          "distinct_entities": 26,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-01-14",
+          "last_event": "2026-05-22",
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        },
+        {
+          "dimension": "LOCAÇÃO OU FRETAMENTO DE AERONAVES",
+          "published": 1,
+          "distinct_entities": 1,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-03-17",
+          "last_event": "2026-03-17",
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        },
+        {
+          "dimension": "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR",
+          "published": 3,
+          "distinct_entities": 3,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-03-26",
+          "last_event": "2026-03-26",
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        },
+        {
+          "dimension": "PASSAGEM AÉREA - SIGEPA",
+          "published": 21,
+          "distinct_entities": 21,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-01-11",
+          "last_event": "2026-03-27",
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        },
+        {
+          "dimension": "TELEFONIA",
+          "published": 8,
+          "distinct_entities": 8,
+          "representatives": 1,
+          "missing_event_date": 8,
+          "first_event": null,
+          "last_event": null,
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        }
+      ],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "expense",
+      "eventDateMeaning": "document_issue_date; financial period comes from year/month",
+      "requestedYear": 2026,
+      "groupBy": "period",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 4,
+      "scopeTotal": 515,
+      "totals": {
+        "published": 100,
+        "distinct_entities": 100,
+        "representatives": 1,
+        "missing_event_date": 8,
+        "first_event": "2026-01-11",
+        "last_event": "2026-05-22",
+        "first_collected": "2026-11-26T17:09:36.419Z",
+        "last_collected": "2026-11-26T17:09:36.419Z",
+        "last_verified": "2026-11-26T17:09:36.419Z",
+        "unattributed_period_records": 0,
+        "indexed_roster": 515
+      },
+      "groups": [
+        {
+          "dimension": "01",
+          "published": 22,
+          "distinct_entities": 22,
+          "representatives": 1,
+          "missing_event_date": 4,
+          "first_event": "2026-01-11",
+          "last_event": "2026-02-13",
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        },
+        {
+          "dimension": "02",
+          "published": 21,
+          "distinct_entities": 21,
+          "representatives": 1,
+          "missing_event_date": 1,
+          "first_event": "2026-02-02",
+          "last_event": "2026-03-28",
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        },
+        {
+          "dimension": "03",
+          "published": 42,
+          "distinct_entities": 42,
+          "representatives": 1,
+          "missing_event_date": 3,
+          "first_event": "2026-03-02",
+          "last_event": "2026-04-20",
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        },
+        {
+          "dimension": "04",
+          "published": 15,
+          "distinct_entities": 15,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-04-01",
+          "last_event": "2026-05-22",
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        }
+      ],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "proposal",
+      "eventDateMeaning": "presentation_date",
+      "requestedYear": 2026,
+      "groupBy": "source",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 1,
+      "scopeTotal": 515,
+      "totals": {
+        "published": 13,
+        "distinct_entities": 13,
+        "representatives": 1,
+        "missing_event_date": 0,
+        "first_event": "2026-02-24",
+        "last_event": "2026-08-28",
+        "first_collected": "2026-11-26T17:09:37.868Z",
+        "last_collected": "2026-11-26T17:09:37.868Z",
+        "last_verified": "2026-11-26T17:09:37.868Z",
+        "unattributed_period_records": 109,
+        "indexed_roster": 515
+      },
+      "groups": [
+        {
+          "dimension": "camara",
+          "published": 13,
+          "distinct_entities": 13,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-02-24",
+          "last_event": "2026-08-28",
+          "first_collected": "2026-11-26T17:09:37.868Z",
+          "last_collected": "2026-11-26T17:09:37.868Z",
+          "last_verified": "2026-11-26T17:09:37.868Z"
+        }
+      ],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "proposal",
+      "eventDateMeaning": "presentation_date",
+      "requestedYear": 2026,
+      "groupBy": "representative",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 1,
+      "scopeTotal": 515,
+      "totals": {
+        "published": 13,
+        "distinct_entities": 13,
+        "representatives": 1,
+        "missing_event_date": 0,
+        "first_event": "2026-02-24",
+        "last_event": "2026-08-28",
+        "first_collected": "2026-11-26T17:09:37.868Z",
+        "last_collected": "2026-11-26T17:09:37.868Z",
+        "last_verified": "2026-11-26T17:09:37.868Z",
+        "unattributed_period_records": 109,
+        "indexed_roster": 515
+      },
+      "groups": [
+        {
+          "dimension": "204379",
+          "published": 13,
+          "distinct_entities": 13,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-02-24",
+          "last_event": "2026-08-28",
+          "first_collected": "2026-11-26T17:09:37.868Z",
+          "last_collected": "2026-11-26T17:09:37.868Z",
+          "last_verified": "2026-11-26T17:09:37.868Z"
+        }
+      ],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "proposal",
+      "eventDateMeaning": "presentation_date",
+      "requestedYear": 2026,
+      "groupBy": "category",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 1,
+      "scopeTotal": 515,
+      "totals": {
+        "published": 13,
+        "distinct_entities": 13,
+        "representatives": 1,
+        "missing_event_date": 0,
+        "first_event": "2026-02-24",
+        "last_event": "2026-08-28",
+        "first_collected": "2026-11-26T17:09:37.868Z",
+        "last_collected": "2026-11-26T17:09:37.868Z",
+        "last_verified": "2026-11-26T17:09:37.868Z",
+        "unattributed_period_records": 109,
+        "indexed_roster": 515
+      },
+      "groups": [
+        {
+          "dimension": "proposal",
+          "published": 13,
+          "distinct_entities": 13,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-02-24",
+          "last_event": "2026-08-28",
+          "first_collected": "2026-11-26T17:09:37.868Z",
+          "last_collected": "2026-11-26T17:09:37.868Z",
+          "last_verified": "2026-11-26T17:09:37.868Z"
+        }
+      ],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "proposal",
+      "eventDateMeaning": "presentation_date",
+      "requestedYear": 2026,
+      "groupBy": "period",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 6,
+      "scopeTotal": 515,
+      "totals": {
+        "published": 13,
+        "distinct_entities": 13,
+        "representatives": 1,
+        "missing_event_date": 0,
+        "first_event": "2026-02-24",
+        "last_event": "2026-08-28",
+        "first_collected": "2026-11-26T17:09:37.868Z",
+        "last_collected": "2026-11-26T17:09:37.868Z",
+        "last_verified": "2026-11-26T17:09:37.868Z",
+        "unattributed_period_records": 109,
+        "indexed_roster": 515
+      },
+      "groups": [
+        {
+          "dimension": "02",
+          "published": 2,
+          "distinct_entities": 2,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-02-24",
+          "last_event": "2026-02-25",
+          "first_collected": "2026-11-26T17:09:37.868Z",
+          "last_collected": "2026-11-26T17:09:37.868Z",
+          "last_verified": "2026-11-26T17:09:37.868Z"
+        },
+        {
+          "dimension": "03",
+          "published": 1,
+          "distinct_entities": 1,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-03-19",
+          "last_event": "2026-03-19",
+          "first_collected": "2026-11-26T17:09:37.868Z",
+          "last_collected": "2026-11-26T17:09:37.868Z",
+          "last_verified": "2026-11-26T17:09:37.868Z"
+        },
+        {
+          "dimension": "04",
+          "published": 3,
+          "distinct_entities": 3,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-04-13",
+          "last_event": "2026-04-23",
+          "first_collected": "2026-11-26T17:09:37.868Z",
+          "last_collected": "2026-11-26T17:09:37.868Z",
+          "last_verified": "2026-11-26T17:09:37.868Z"
+        },
+        {
+          "dimension": "05",
+          "published": 2,
+          "distinct_entities": 2,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-05-13",
+          "last_event": "2026-05-20",
+          "first_collected": "2026-11-26T17:09:37.868Z",
+          "last_collected": "2026-11-26T17:09:37.868Z",
+          "last_verified": "2026-11-26T17:09:37.868Z"
+        },
+        {
+          "dimension": "06",
+          "published": 1,
+          "distinct_entities": 1,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-06-17",
+          "last_event": "2026-06-17",
+          "first_collected": "2026-11-26T17:09:37.868Z",
+          "last_collected": "2026-11-26T17:09:37.868Z",
+          "last_verified": "2026-11-26T17:09:37.868Z"
+        },
+        {
+          "dimension": "08",
+          "published": 4,
+          "distinct_entities": 4,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-08-06",
+          "last_event": "2026-08-28",
+          "first_collected": "2026-11-26T17:09:37.868Z",
+          "last_collected": "2026-11-26T17:09:37.868Z",
+          "last_verified": "2026-11-26T17:09:37.868Z"
+        }
+      ],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "vote",
+      "eventDateMeaning": "session_date",
+      "requestedYear": 2026,
+      "groupBy": "source",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 1,
+      "scopeTotal": 1,
+      "totals": {
+        "published": 100,
+        "distinct_entities": 100,
+        "representatives": 0,
+        "missing_event_date": 0,
+        "first_event": "2026-11-25",
+        "last_event": "2026-11-26",
+        "first_collected": "2026-11-26T17:09:40.448Z",
+        "last_collected": "2026-11-26T17:09:40.448Z",
+        "last_verified": "2026-11-26T17:09:40.448Z",
+        "unattributed_period_records": 0,
+        "indexed_roster": 515
+      },
+      "groups": [
+        {
+          "dimension": "camara",
+          "published": 100,
+          "distinct_entities": 100,
+          "representatives": 0,
+          "missing_event_date": 0,
+          "first_event": "2026-11-25",
+          "last_event": "2026-11-26",
+          "first_collected": "2026-11-26T17:09:40.448Z",
+          "last_collected": "2026-11-26T17:09:40.448Z",
+          "last_verified": "2026-11-26T17:09:40.448Z"
+        }
+      ],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "vote",
+      "eventDateMeaning": "session_date",
+      "requestedYear": 2026,
+      "groupBy": "representative",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 1,
+      "scopeTotal": 1,
+      "totals": {
+        "published": 100,
+        "distinct_entities": 100,
+        "representatives": 0,
+        "missing_event_date": 0,
+        "first_event": "2026-11-25",
+        "last_event": "2026-11-26",
+        "first_collected": "2026-11-26T17:09:40.448Z",
+        "last_collected": "2026-11-26T17:09:40.448Z",
+        "last_verified": "2026-11-26T17:09:40.448Z",
+        "unattributed_period_records": 0,
+        "indexed_roster": 515
+      },
+      "groups": [
+        {
+          "dimension": null,
+          "published": 100,
+          "distinct_entities": 100,
+          "representatives": 0,
+          "missing_event_date": 0,
+          "first_event": "2026-11-25",
+          "last_event": "2026-11-26",
+          "first_collected": "2026-11-26T17:09:40.448Z",
+          "last_collected": "2026-11-26T17:09:40.448Z",
+          "last_verified": "2026-11-26T17:09:40.448Z"
+        }
+      ],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "vote",
+      "eventDateMeaning": "session_date",
+      "requestedYear": 2026,
+      "groupBy": "category",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 10,
+      "scopeTotal": 1,
+      "totals": {
+        "published": 100,
+        "distinct_entities": 100,
+        "representatives": 0,
+        "missing_event_date": 0,
+        "first_event": "2026-11-25",
+        "last_event": "2026-11-26",
+        "first_collected": "2026-11-26T17:09:40.448Z",
+        "last_collected": "2026-11-26T17:09:40.448Z",
+        "last_verified": "2026-11-26T17:09:40.448Z",
+        "unattributed_period_records": 0,
+        "indexed_roster": 515
+      },
+      "groups": [
+        {
+          "dimension": "CAPADR",
+          "published": 1,
+          "distinct_entities": 1,
+          "representatives": 0,
+          "missing_event_date": 0,
+          "first_event": "2026-11-25",
+          "last_event": "2026-11-25",
+          "first_collected": "2026-11-26T17:09:40.448Z",
+          "last_collected": "2026-11-26T17:09:40.448Z",
+          "last_verified": "2026-11-26T17:09:40.448Z"
+        },
+        {
+          "dimension": "CCOM",
+          "published": 57,
+          "distinct_entities": 57,
+          "representatives": 0,
+          "missing_event_date": 0,
+          "first_event": "2026-11-25",
+          "last_event": "2026-11-25",
+          "first_collected": "2026-11-26T17:09:40.448Z",
+          "last_collected": "2026-11-26T17:09:40.448Z",
+          "last_verified": "2026-11-26T17:09:40.448Z"
+        },
+        {
+          "dimension": "CDE",
+          "published": 2,
+          "distinct_entities": 2,
+          "representatives": 0,
+          "missing_event_date": 0,
+          "first_event": "2026-11-25",
+          "last_event": "2026-11-25",
+          "first_collected": "2026-11-26T17:09:40.448Z",
+          "last_collected": "2026-11-26T17:09:40.448Z",
+          "last_verified": "2026-11-26T17:09:40.448Z"
+        },
+        {
+          "dimension": "CE",
+          "published": 10,
+          "distinct_entities": 10,
+          "representatives": 0,
+          "missing_event_date": 0,
+          "first_event": "2026-11-25",
+          "last_event": "2026-11-25",
+          "first_collected": "2026-11-26T17:09:40.448Z",
+          "last_collected": "2026-11-26T17:09:40.448Z",
+          "last_verified": "2026-11-26T17:09:40.448Z"
+        },
+        {
+          "dimension": "CMULHER",
+          "published": 10,
+          "distinct_entities": 10,
+          "representatives": 0,
+          "missing_event_date": 0,
+          "first_event": "2026-11-25",
+          "last_event": "2026-11-25",
+          "first_collected": "2026-11-26T17:09:40.448Z",
+          "last_collected": "2026-11-26T17:09:40.448Z",
+          "last_verified": "2026-11-26T17:09:40.448Z"
+        },
+        {
+          "dimension": "CSAUDE",
+          "published": 2,
+          "distinct_entities": 2,
+          "representatives": 0,
+          "missing_event_date": 0,
+          "first_event": "2026-11-25",
+          "last_event": "2026-11-25",
+          "first_collected": "2026-11-26T17:09:40.448Z",
+          "last_collected": "2026-11-26T17:09:40.448Z",
+          "last_verified": "2026-11-26T17:09:40.448Z"
+        },
+        {
+          "dimension": "CTRAB",
+          "published": 1,
+          "distinct_entities": 1,
+          "representatives": 0,
+          "missing_event_date": 0,
+          "first_event": "2026-11-25",
+          "last_event": "2026-11-25",
+          "first_collected": "2026-11-26T17:09:40.448Z",
+          "last_collected": "2026-11-26T17:09:40.448Z",
+          "last_verified": "2026-11-26T17:09:40.448Z"
+        },
+        {
+          "dimension": "CVT",
+          "published": 3,
+          "distinct_entities": 3,
+          "representatives": 0,
+          "missing_event_date": 0,
+          "first_event": "2026-11-25",
+          "last_event": "2026-11-25",
+          "first_collected": "2026-11-26T17:09:40.448Z",
+          "last_collected": "2026-11-26T17:09:40.448Z",
+          "last_verified": "2026-11-26T17:09:40.448Z"
+        },
+        {
+          "dimension": "PEC03215",
+          "published": 2,
+          "distinct_entities": 2,
+          "representatives": 0,
+          "missing_event_date": 0,
+          "first_event": "2026-11-25",
+          "last_event": "2026-11-25",
+          "first_collected": "2026-11-26T17:09:40.448Z",
+          "last_collected": "2026-11-26T17:09:40.448Z",
+          "last_verified": "2026-11-26T17:09:40.448Z"
+        },
+        {
+          "dimension": "PLEN",
+          "published": 12,
+          "distinct_entities": 12,
+          "representatives": 0,
+          "missing_event_date": 0,
+          "first_event": "2026-11-25",
+          "last_event": "2026-11-26",
+          "first_collected": "2026-11-26T17:09:40.448Z",
+          "last_collected": "2026-11-26T17:09:40.448Z",
+          "last_verified": "2026-11-26T17:09:40.448Z"
+        }
+      ],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "vote",
+      "eventDateMeaning": "session_date",
+      "requestedYear": 2026,
+      "groupBy": "period",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 1,
+      "scopeTotal": 1,
+      "totals": {
+        "published": 100,
+        "distinct_entities": 100,
+        "representatives": 0,
+        "missing_event_date": 0,
+        "first_event": "2026-11-25",
+        "last_event": "2026-11-26",
+        "first_collected": "2026-11-26T17:09:40.448Z",
+        "last_collected": "2026-11-26T17:09:40.448Z",
+        "last_verified": "2026-11-26T17:09:40.448Z",
+        "unattributed_period_records": 0,
+        "indexed_roster": 515
+      },
+      "groups": [
+        {
+          "dimension": "11",
+          "published": 100,
+          "distinct_entities": 100,
+          "representatives": 0,
+          "missing_event_date": 0,
+          "first_event": "2026-11-25",
+          "last_event": "2026-11-26",
+          "first_collected": "2026-11-26T17:09:40.448Z",
+          "last_collected": "2026-11-26T17:09:40.448Z",
+          "last_verified": "2026-11-26T17:09:40.448Z"
+        }
+      ],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "ballot",
+      "eventDateMeaning": "parent_voting_session_date; registration date is a separate record field",
+      "requestedYear": 2026,
+      "groupBy": "source",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 0,
+      "scopeTotal": 100,
+      "totals": {
+        "published": 0,
+        "distinct_entities": 0,
+        "representatives": 0,
+        "missing_event_date": 0,
+        "first_event": null,
+        "last_event": null,
+        "first_collected": null,
+        "last_collected": null,
+        "last_verified": null,
+        "unattributed_period_records": 0,
+        "indexed_roster": 515
+      },
+      "groups": [],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "ballot",
+      "eventDateMeaning": "parent_voting_session_date; registration date is a separate record field",
+      "requestedYear": 2026,
+      "groupBy": "representative",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 0,
+      "scopeTotal": 100,
+      "totals": {
+        "published": 0,
+        "distinct_entities": 0,
+        "representatives": 0,
+        "missing_event_date": 0,
+        "first_event": null,
+        "last_event": null,
+        "first_collected": null,
+        "last_collected": null,
+        "last_verified": null,
+        "unattributed_period_records": 0,
+        "indexed_roster": 515
+      },
+      "groups": [],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "ballot",
+      "eventDateMeaning": "parent_voting_session_date; registration date is a separate record field",
+      "requestedYear": 2026,
+      "groupBy": "category",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 0,
+      "scopeTotal": 100,
+      "totals": {
+        "published": 0,
+        "distinct_entities": 0,
+        "representatives": 0,
+        "missing_event_date": 0,
+        "first_event": null,
+        "last_event": null,
+        "first_collected": null,
+        "last_collected": null,
+        "last_verified": null,
+        "unattributed_period_records": 0,
+        "indexed_roster": 515
+      },
+      "groups": [],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "ballot",
+      "eventDateMeaning": "parent_voting_session_date; registration date is a separate record field",
+      "requestedYear": 2026,
+      "groupBy": "period",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 0,
+      "scopeTotal": 100,
+      "totals": {
+        "published": 0,
+        "distinct_entities": 0,
+        "representatives": 0,
+        "missing_event_date": 0,
+        "first_event": null,
+        "last_event": null,
+        "first_collected": null,
+        "last_collected": null,
+        "last_verified": null,
+        "unattributed_period_records": 0,
+        "indexed_roster": 515
+      },
+      "groups": [],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "politician",
+      "eventDateMeaning": "no event date inferred from a roster snapshot",
+      "requestedYear": 2026,
+      "groupBy": "source",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 0,
+      "scopeTotal": 2,
+      "totals": {
+        "published": 0,
+        "distinct_entities": 0,
+        "representatives": 0,
+        "missing_event_date": 0,
+        "first_event": null,
+        "last_event": null,
+        "first_collected": null,
+        "last_collected": null,
+        "last_verified": null,
+        "unattributed_period_records": 515,
+        "indexed_roster": 515
+      },
+      "groups": [],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "politician",
+      "eventDateMeaning": "no event date inferred from a roster snapshot",
+      "requestedYear": 2026,
+      "groupBy": "representative",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 0,
+      "scopeTotal": 2,
+      "totals": {
+        "published": 0,
+        "distinct_entities": 0,
+        "representatives": 0,
+        "missing_event_date": 0,
+        "first_event": null,
+        "last_event": null,
+        "first_collected": null,
+        "last_collected": null,
+        "last_verified": null,
+        "unattributed_period_records": 515,
+        "indexed_roster": 515
+      },
+      "groups": [],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "politician",
+      "eventDateMeaning": "no event date inferred from a roster snapshot",
+      "requestedYear": 2026,
+      "groupBy": "category",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 0,
+      "scopeTotal": 2,
+      "totals": {
+        "published": 0,
+        "distinct_entities": 0,
+        "representatives": 0,
+        "missing_event_date": 0,
+        "first_event": null,
+        "last_event": null,
+        "first_collected": null,
+        "last_collected": null,
+        "last_verified": null,
+        "unattributed_period_records": 515,
+        "indexed_roster": 515
+      },
+      "groups": [],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "politician",
+      "eventDateMeaning": "no event date inferred from a roster snapshot",
+      "requestedYear": 2026,
+      "groupBy": "period",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 0,
+      "scopeTotal": 2,
+      "totals": {
+        "published": 0,
+        "distinct_entities": 0,
+        "representatives": 0,
+        "missing_event_date": 0,
+        "first_event": null,
+        "last_event": null,
+        "first_collected": null,
+        "last_collected": null,
+        "last_verified": null,
+        "unattributed_period_records": 515,
+        "indexed_roster": 515
+      },
+      "groups": [],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    }
+  ],
+  "annualFile2026": {
+    "at": "2026-11-26T17:13:57.389Z",
+    "url": "https://www.camara.leg.br/cotas/Ano-2026.csv.zip",
+    "sha256": "9e8f716d5f9c2229023db3899401e6bde9f2d2f63d2ad522cad812277f177b6c",
+    "csvSha256": "a3fb57f5c9bd0492622fd7eae5f6fe96d17f89e83485651c70c077bff0466090",
+    "zipBytes": 4802417,
+    "csvBytes": 48101007,
+    "rows": 128906,
+    "representatives": 565,
+    "totalNetCents": "16443138787",
+    "periods": [
+      [
+        "2026-01",
+        9995
+      ],
+      [
+        "2026-02",
+        12958
+      ],
+      [
+        "2026-03",
+        16507
+      ],
+      [
+        "2026-04",
+        15251
+      ],
+      [
+        "2026-05",
+        16353
+      ],
+      [
+        "2026-06",
+        14513
+      ],
+      [
+        "2026-07",
+        14140
+      ],
+      [
+        "2026-08",
+        10566
+      ],
+      [
+        "2026-09",
+        6806
+      ],
+      [
+        "2026-10",
+        8552
+      ],
+      [
+        "2026-11",
+        3265
+      ]
+    ],
+    "scope": "Official annual file staged locally only; no publication or cross-source reconciliation"
+  },
+  "notes": "Initial roster attempt quarantined party variants, budget stop without configured proxy resumed safely; subsequent dated roster preserved all positions and current affiliations. No remote writes.",
+  "sampleRepresentative": [
+    {
+      "source": "camara",
+      "kind": "expense",
+      "eventDateMeaning": "document_issue_date; financial period comes from year/month",
+      "requestedYear": 2026,
+      "groupBy": "period",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 4,
+      "scopeTotal": 1,
+      "totals": {
+        "published": 100,
+        "distinct_entities": 100,
+        "representatives": 1,
+        "missing_event_date": 8,
+        "first_event": "2026-01-11",
+        "last_event": "2026-05-22",
+        "first_collected": "2026-11-26T17:09:36.419Z",
+        "last_collected": "2026-11-26T17:09:36.419Z",
+        "last_verified": "2026-11-26T17:09:36.419Z",
+        "unattributed_period_records": 0,
+        "indexed_roster": 515
+      },
+      "groups": [
+        {
+          "dimension": "01",
+          "published": 22,
+          "distinct_entities": 22,
+          "representatives": 1,
+          "missing_event_date": 4,
+          "first_event": "2026-01-11",
+          "last_event": "2026-02-13",
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        },
+        {
+          "dimension": "02",
+          "published": 21,
+          "distinct_entities": 21,
+          "representatives": 1,
+          "missing_event_date": 1,
+          "first_event": "2026-02-02",
+          "last_event": "2026-03-28",
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        },
+        {
+          "dimension": "03",
+          "published": 42,
+          "distinct_entities": 42,
+          "representatives": 1,
+          "missing_event_date": 3,
+          "first_event": "2026-03-02",
+          "last_event": "2026-04-20",
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        },
+        {
+          "dimension": "04",
+          "published": 15,
+          "distinct_entities": 15,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-04-01",
+          "last_event": "2026-05-22",
+          "first_collected": "2026-11-26T17:09:36.419Z",
+          "last_collected": "2026-11-26T17:09:36.419Z",
+          "last_verified": "2026-11-26T17:09:36.419Z"
+        }
+      ],
+      "scopes": [
+        {
+          "subject": "204379",
+          "month": null,
+          "status": "queued",
+          "page": 2,
+          "requested_from": "2026-01-01",
+          "requested_to": "2026-11-26",
+          "cycle_started_at": "2026-11-26T17:09:36.098Z",
+          "cycle_finished_at": null,
+          "pages_collected": 1,
+          "current_observed_source_rows": "100",
+          "current_validated_rows": "100",
+          "current_published_observations": "100",
+          "covered_from": null,
+          "covered_to": null,
+          "completed_at": null,
+          "observed_source_rows": null,
+          "validated_rows": null,
+          "published_observations": null,
+          "empty_source_response": null,
+          "state": "partial"
+        }
+      ],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    },
+    {
+      "source": "camara",
+      "kind": "proposal",
+      "eventDateMeaning": "presentation_date",
+      "requestedYear": 2026,
+      "groupBy": "period",
+      "page": 1,
+      "pageSize": 100,
+      "groupTotal": 6,
+      "scopeTotal": 1,
+      "totals": {
+        "published": 13,
+        "distinct_entities": 13,
+        "representatives": 1,
+        "missing_event_date": 0,
+        "first_event": "2026-02-24",
+        "last_event": "2026-08-28",
+        "first_collected": "2026-11-26T17:09:37.868Z",
+        "last_collected": "2026-11-26T17:09:37.868Z",
+        "last_verified": "2026-11-26T17:09:37.868Z",
+        "unattributed_period_records": 0,
+        "indexed_roster": 515
+      },
+      "groups": [
+        {
+          "dimension": "02",
+          "published": 2,
+          "distinct_entities": 2,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-02-24",
+          "last_event": "2026-02-25",
+          "first_collected": "2026-11-26T17:09:37.868Z",
+          "last_collected": "2026-11-26T17:09:37.868Z",
+          "last_verified": "2026-11-26T17:09:37.868Z"
+        },
+        {
+          "dimension": "03",
+          "published": 1,
+          "distinct_entities": 1,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-03-19",
+          "last_event": "2026-03-19",
+          "first_collected": "2026-11-26T17:09:37.868Z",
+          "last_collected": "2026-11-26T17:09:37.868Z",
+          "last_verified": "2026-11-26T17:09:37.868Z"
+        },
+        {
+          "dimension": "04",
+          "published": 3,
+          "distinct_entities": 3,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-04-13",
+          "last_event": "2026-04-23",
+          "first_collected": "2026-11-26T17:09:37.868Z",
+          "last_collected": "2026-11-26T17:09:37.868Z",
+          "last_verified": "2026-11-26T17:09:37.868Z"
+        },
+        {
+          "dimension": "05",
+          "published": 2,
+          "distinct_entities": 2,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-05-13",
+          "last_event": "2026-05-20",
+          "first_collected": "2026-11-26T17:09:37.868Z",
+          "last_collected": "2026-11-26T17:09:37.868Z",
+          "last_verified": "2026-11-26T17:09:37.868Z"
+        },
+        {
+          "dimension": "06",
+          "published": 1,
+          "distinct_entities": 1,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-06-17",
+          "last_event": "2026-06-17",
+          "first_collected": "2026-11-26T17:09:37.868Z",
+          "last_collected": "2026-11-26T17:09:37.868Z",
+          "last_verified": "2026-11-26T17:09:37.868Z"
+        },
+        {
+          "dimension": "08",
+          "published": 4,
+          "distinct_entities": 4,
+          "representatives": 1,
+          "missing_event_date": 0,
+          "first_event": "2026-08-06",
+          "last_event": "2026-08-28",
+          "first_collected": "2026-11-26T17:09:37.868Z",
+          "last_collected": "2026-11-26T17:09:37.868Z",
+          "last_verified": "2026-11-26T17:09:37.868Z"
+        }
+      ],
+      "scopes": [
+        {
+          "subject": "204379",
+          "month": null,
+          "status": "done",
+          "page": 1,
+          "requested_from": "2026-01-01",
+          "requested_to": "2026-11-26",
+          "cycle_started_at": "2026-11-26T17:09:36.875Z",
+          "cycle_finished_at": "2026-11-26T17:09:37.868Z",
+          "pages_collected": 1,
+          "current_observed_source_rows": "13",
+          "current_validated_rows": "13",
+          "current_published_observations": "13",
+          "covered_from": "2026-01-01",
+          "covered_to": "2026-11-26",
+          "completed_at": "2026-11-26T17:09:37.868Z",
+          "observed_source_rows": "13",
+          "validated_rows": "13",
+          "published_observations": "13",
+          "empty_source_response": false,
+          "state": "complete_as_of_collection"
+        }
+      ],
+      "institutionalTotal": null,
+      "coveragePercent": null,
+      "interpretation": "Contagens do índice, não totais institucionais. Ausência de registro não comprova ausência de gastos ou atividade. Intervalos observados não comprovam cobertura contínua. Escopo nominal é uma votação, não um ano inteiro. Datas desconhecidas permanecem nulas. Cadastro de representantes é snapshot; não comprova todos os mandatos históricos."
+    }
+  ],
+  "databaseBytes": {
+    "before": 16881331,
+    "after": 18200243
+  }
+}

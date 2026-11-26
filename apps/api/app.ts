@@ -8,6 +8,7 @@ import type pg from 'pg'
 import {z,ZodError} from 'zod'
 import {enrichmentRoutes} from './enrichment.ts'
 import {recordId} from '../../packages/database/record-id.ts'
+import {coverage} from '../../packages/database/coverage.ts'
 
 const kinds=z.enum(['politician','expense','proposal','vote','ballot'])
 const id=z.string().trim().min(1).max(250)
@@ -28,7 +29,7 @@ const search=z.object({
 }).refine(v=>!v.from||!v.to||v.from<=v.to)
 const fields='kind,id,owner,title,to_char(date,\'YYYY-MM-DD\') as date,amount,data,source_url,api_url,sha256,collected_at,verified_at,field,collector_version'
 export function csv(rows:Record<string,unknown>[]) {
-  const keys=['kind','id','owner','title','date','amount','source_url','api_url','sha256','verified_at','field','collector_version']
+  const keys=['kind','id','owner','title','date','amount','source_url','api_url','sha256','collected_at','verified_at','field','collector_version']
   const cell=(v:unknown)=>{
     const s=v instanceof Date?v.toISOString():String(v??'')
     return '"'+(/^[\s]*[=+@-]/.test(s)?"'":'')+s.replaceAll('"','""')+'"'
@@ -52,6 +53,18 @@ export async function app(db:pg.Pool) {
     reply.code(status).send({error:status===429?'Limite de consultas atingido':'Solicitação indisponível'})
   })
   api.get('/api/health',async()=>{await db.query('select 1');return {status:'ok'}})
+  api.get('/api/coverage',async request=>{
+    const query=z.object({kind:kinds.default('expense'),year:z.coerce.number().int().min(2008).max(new Date().getUTCFullYear()).default(new Date().getUTCFullYear()),
+      by:z.enum(['representative','source','category','period']).default('representative'),owner:z.string().regex(/^[1-9]\d{0,13}$/).optional(),
+      page:z.coerce.number().int().min(1).max(1000).default(1)}).strict().parse(request.query)
+    const client=await db.connect()
+    try{
+      await client.query('begin isolation level repeatable read read only')
+      const result=await coverage(client,query)
+      await client.query('commit')
+      return result
+    }catch(error){await client.query('rollback');throw error}finally{client.release()}
+  })
   api.get('/api/summary',async()=>{
     const [counts,states,jobs,coverage,parties]=await Promise.all([
       db.query(`select kind,count(distinct case when kind='proposal' then coalesce(data->>'proposalId',id) else id end)::int as n,

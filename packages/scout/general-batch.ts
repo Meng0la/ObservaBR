@@ -4,14 +4,16 @@ import {transaction} from '../database/index.ts'
 import {collectionUrl,readCollectionPage,parsePage,configureCollectionBudget,collectionUsage,CollectionBudgetExceeded,type Task} from '../collectors/camara/index.ts'
 import {persist,enqueue,jobKey} from './store.ts'
 import {expensePlan} from './expense-reconciliation.ts'
+import {taskScope,refreshDays} from './backfill.ts'
 
-export type BatchConfig={kinds:Task['kind'][];year:number;month?:number;owner?:string;maxTasks:number;maxSeconds:number;maxRequests:number;maxBytes:number;databaseLimitBytes:number;maxPending:number}
+export type BatchConfig={kinds:Task['kind'][];year:number;years?:number[];month?:number;owner?:string;maxTasks:number;maxSeconds:number;maxRequests:number;maxBytes:number;databaseLimitBytes:number;maxPending:number}
 type Fetcher=(task:Task,page:number)=>ReturnType<typeof readCollectionPage>
 export function retryDelay(attempt:number,random= Math.random){return Math.min(24*3600_000,30_000*2**Math.min(attempt,12)*(.75+random()*.5))}
 export function validateBatch(c:BatchConfig){
  const kinds=['politician','expense','proposal','vote','ballot']
  if(!c.kinds.length||c.kinds.some(k=>!kinds.includes(k))||new Set(c.kinds).size!==c.kinds.length)throw Error('Tipos de coleta inválidos')
  if(!Number.isInteger(c.year)||c.year<2008||c.year>new Date().getUTCFullYear())throw Error('Ano inválido')
+ if(c.years&&(!c.years.length||c.years.length>100||new Set(c.years).size!==c.years.length||c.years.some(y=>!Number.isInteger(y)||y<2008||y>new Date().getUTCFullYear())))throw Error('Anos inválidos')
  if(c.month!=null&&(!Number.isInteger(c.month)||c.month<1||c.month>12))throw Error('Mês inválido')
  if(c.owner!=null&&!(c.kinds.length===1&&c.kinds[0]==='ballot'?/^\d{1,14}-\d{1,10}$/:/^[1-9]\d{0,13}$/).test(c.owner))throw Error('Identificador inválido')
  for(const [value,min,max] of [[c.maxTasks,1,100],[c.maxSeconds,1,600],[c.maxRequests,1,300],[c.maxBytes,1024,64*1024*1024],[c.databaseLimitBytes,1024*1024,1e12],[c.maxPending,1,100000]])
@@ -45,18 +47,23 @@ export async function generalBatch(db:pg.PoolClient,c:BatchConfig,fetcher:Fetche
    const limits=await db.query("select pg_database_size(current_database())::float8 as bytes,(select count(*)::int from collection_jobs where status in ('queued','failed','running')) as pending")
    if(limits.rows[0].bytes+c.maxBytes>c.databaseLimitBytes*.95){summary.status='capacity';break}
    const next=await db.query(`select j.* from collection_jobs j join collection_kind_state k on k.kind=j.kind
-    where j.kind=any($1::text[]) and j.task->>'year'=$2 and j.due_at<=now()
+    where j.kind=any($1::text[]) and j.task->>'year'=any($2::text[]) and j.due_at<=now()
     and j.status in ('queued','failed','done') and ($3::text is null or j.kind<>'vote' or j.task->>'month'=$3)
     and ($4::text is null or j.task->>'owner'=$4)
     and ($5::boolean or j.kind not in ('politician','vote'))
-    order by k.last_served_at,j.priority,j.due_at,j.key limit 1`,[c.kinds,String(c.year),c.month==null?null:String(c.month),c.owner??null,limits.rows[0].pending+200<=c.maxPending])
+    order by k.last_served_at,
+     case when (k.served%5=4)=(j.status='done') then 0 else 1 end,
+     array_position($2::text[],j.task->>'year'),j.priority,j.due_at,j.key limit 1`,[c.kinds,(c.years??[c.year]).map(String),c.month==null?null:String(c.month),c.owner??null,limits.rows[0].pending+200<=c.maxPending])
    if(!next.rowCount)break
    const job=next.rows[0]
-   await db.query('update collection_kind_state set last_served_at=clock_timestamp() where kind=$1',[job.kind])
+   await db.query('update collection_kind_state set last_served_at=clock_timestamp(),served=served+1 where kind=$1',[job.kind])
    // Validation occurs before marking a task running or accepting any URL from persisted JSON.
    try{collectionUrl(job.task,job.page)}catch{await db.query("update collection_jobs set status='dead',error='Tarefa institucional inválida' where key=$1",[job.key]);summary.failures++;summary.tasks++;continue}
    await transaction(db,async()=>{
-    if(!job.cycle_id)job.cycle_id=(await db.query('insert into collection_cycles(job_key) values($1) returning id',[job.key])).rows[0].id
+    if(!job.cycle_id){
+     const scope=taskScope(job.task)
+     job.cycle_id=(await db.query('insert into collection_cycles(job_key,scope_from,scope_to) values($1,$2,$3) returning id',[job.key,scope.from,scope.to])).rows[0].id
+    }
     await db.query("update collection_jobs set status='running',started_at=now(),updated_at=now(),cycle_id=$2 where key=$1",[job.key,job.cycle_id])
     await db.query('update collection_kind_state set last_served_at=clock_timestamp() where kind=$1',[job.kind])
    })
@@ -74,6 +81,7 @@ export async function generalBatch(db:pg.PoolClient,c:BatchConfig,fetcher:Fetche
     validation=true
     const page=parsePage(source.raw,job.task,job.page,source.url)
     await persist(db,job.key,job.task,page,undefined,job.cycle_id)
+    if(!page.next)await db.query("update collection_jobs set due_at=now()+$2::int*interval '1 day' where key=$1",[job.key,refreshDays(job.task)])
     summary.pages++;summary.records+=page.records.length
    }catch(error){
     if(error instanceof CollectionBudgetExceeded||Date.now()>=deadline){

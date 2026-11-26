@@ -1,4 +1,5 @@
 # Modelo de custos — planejamento
+Backfill 2026 medido: 4,8 MB comprimidos para 128.906 linhas oficiais; equivalente aritmético mínimo de 1.290 páginas de 100, sem alegar equivalência entre arquivo/API. Piloto isolado de quatro páginas válidas consumiu 134.609 bytes; ensaio total com quarentena/retry orçado usou 169.945 bytes e sete tentativas. Mantidos limites, infraestrutura gratuita e cron geral inativo. Seed bloqueado a partir de 85% do orçamento de banco. Detalhes e limites em BACKFILL_STRATEGY.md.
 Infraestrutura já existente: Render Free, Supabase e runners GitHub-hosted em repositório público. Esta etapa não autoriza serviços faturáveis ou coleta ilimitada. Medição inicial de 26/11/2026: aproximadamente 21,1 MB no banco; limites e orçamento dos lotes serão registrados no relatório com fontes atuais dos provedores.
 
 Nenhuma infraestrutura foi contratada nesta fase. Não há estimativa monetária verificada de fornecedores.

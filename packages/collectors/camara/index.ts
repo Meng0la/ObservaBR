@@ -11,6 +11,7 @@ export type Task = {
   name?: string
   year: number
   month?: number
+  roster?:'period'
 }
 
 export type PublicRecord = {
@@ -36,6 +37,7 @@ for (const [address, prefix] of [
 ] as const) blocked.addSubnet(address, prefix, 'ipv4')
 
 export function collectionUrl(task: Task, page = 1): URL {
+  if(task.roster!=null&&(task.roster!=='period'||task.kind!=='politician'))throw Error('Modo de cadastro inválido')
   if (!Number.isSafeInteger(page) || page < 1 || page > 100000) throw Error('Página inválida')
   if (!Number.isInteger(task.year) || task.year < 1900 || task.year > 2100) throw Error('Ano inválido')
   const paths = { politician: 'deputados', expense: 'deputados', proposal: 'proposicoes', vote: 'votacoes', ballot: 'votacoes' }
@@ -55,6 +57,10 @@ export function collectionUrl(task: Task, page = 1): URL {
   if (task.kind === 'politician' && task.name) {
     if (task.name.length > 120) throw Error('Nome muito longo')
     params.set('nome', task.name)
+  }
+  if(task.kind==='politician'&&task.roster==='period'){
+    params.set('dataInicio',`${task.year}-01-01`)
+    params.set('dataFim',`${task.year}-12-31`)
   }
   if (task.kind === 'vote') {
     const now = new Date()
@@ -110,7 +116,7 @@ function normalize(task: Task, row: Row, url: string, index: number): PublicReco
   switch (task.kind) {
     case 'politician':
       return { ...base, id: required(row.id), title: required(row.nome), sourceUrl: official(row.uri) ?? url,
-        data: { party: text(row.siglaPartido), uf: text(row.siglaUf), legislature: row.idLegislatura ?? null, photo: official(row.urlFoto) } }
+        data: { party: task.roster==='period'?null:text(row.siglaPartido), uf: text(row.siglaUf), legislature: row.idLegislatura ?? null, photo: official(row.urlFoto),rosterYear:task.roster==='period'?task.year:new Date().getUTCFullYear(),rosterMode:task.roster??'current' } }
     case 'expense': {
       const amount = money(row.valorLiquido)
       const company = typeof row.cnpjCpfFornecedor === 'string' && /^\d{14}$/.test(row.cnpjCpfFornecedor)
@@ -157,16 +163,25 @@ export function parsePage(raw: Buffer, task: Task, page: number, url: string) {
   const records:PublicRecord[]=[]
   const observations:Array<{id:string,field:string}>=[]
   const identities=new Map<string,string>()
+  const rawRows=new Set<string>()
+  let duplicates=0,representationVariants=0
   const canonical=(v:unknown):unknown=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.keys(v).sort().map(k=>[k,canonical((v as Row)[k])]):v
   for(const [index,value] of body.dados.entries()){
-    const row=object(value),record=normalize(task,row,url,index),fingerprint=JSON.stringify(canonical(row))
+    const row=object(value),record=normalize(task,row,url,index)
+    // Dated rosters may repeat the same institutional person with different parties.
+    // Keep every source position; never select one of these as current affiliation.
+    const identityRow=task.kind==='politician'&&task.roster==='period'?Object.fromEntries(Object.entries(row).filter(([key])=>key!=='siglaPartido')):row
+    const fingerprint=JSON.stringify(canonical(identityRow))
+    const rawFingerprint=JSON.stringify(canonical(row))
     observations.push({id:record.id,field:record.field})
     if(identities.has(record.id)){
       if(identities.get(record.id)!==fingerprint)throw Error('Chaves ambíguas na página da Câmara')
+      if(rawRows.has(rawFingerprint))duplicates++;else representationVariants++
     }else{identities.set(record.id,fingerprint);records.push(record)}
+    rawRows.add(rawFingerprint)
   }
   const next = body.links.some(link => object(link).rel === 'next')
-  return { page, url, raw, records, next,observations,sourceRows:body.dados.length,duplicates:body.dados.length-records.length }
+  return { page, url, raw, records, next,observations,sourceRows:body.dados.length,duplicates,representationVariants }
 }
 
 export class CollectionBudgetExceeded extends Error {}
