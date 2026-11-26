@@ -1,0 +1,13 @@
+# Free MVP: the API also serves the compiled Vite frontend. No database is created here.
+services:
+  - type: web
+    name: observabr
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: main
+    healthCheckPath: /api/health
+    numInstances: 1
+    envVars:
+      - key: DATABASE_URL
+        sync: false

@@ -4,6 +4,14 @@ import {collect} from '../../packages/collectors/camara/index.ts'
 import {enqueue,jobKey,persist,type Task} from '../../packages/scout/store.ts'
 import {runNextEnrichment} from '../../packages/scout/enrichment.ts'
 
+const batch=process.argv.includes('--enrichment-batch')
+const maxJobs=Number(process.env.SCOUT_MAX_JOBS||3)
+const maxSeconds=Number(process.env.SCOUT_MAX_SECONDS||180)
+if(batch&&(!Number.isInteger(maxJobs)||maxJobs<1||maxJobs>10||!Number.isInteger(maxSeconds)||maxSeconds<1||maxSeconds>600)) {
+  throw new Error('Limites inválidos para o lote do Scout')
+}
+const deadline=Date.now()+maxSeconds*1000
+let processed=0
 const pool=database()
 const db=await pool.connect()
 let stop=false
@@ -12,15 +20,20 @@ process.on('SIGINT',()=>{stop=true})
 try {
   const lock=await db.query('select pg_try_advisory_lock(6211501) as acquired')
   if(!lock.rows[0].acquired) throw new Error('Outro Scout está consumindo a fila')
-  await db.query("update collection_jobs set status='queued' where status='running'")
+  if(!batch)await db.query("update collection_jobs set status='queued' where status='running'")
   do {
+    if(batch&&Date.now()>=deadline)break
     try {
       if(await runNextEnrichment(db)) {
-        if(process.argv.includes('--once')||process.argv.includes('--enrichment-once'))break
+        processed++
+        if(process.argv.includes('--once')||process.argv.includes('--enrichment-once')||(batch&&processed>=maxJobs))break
         continue
       }
-    } catch(error) { console.error(error instanceof Error?error.message:'Falha no enriquecimento') }
-    if(process.argv.includes('--enrichment-once'))break
+    } catch(error) {
+      console.error(error instanceof Error?error.message:'Falha no enriquecimento')
+      if(batch)throw new Error('Lote complementar interrompido; nova tentativa persistida na fila')
+    }
+    if(batch||process.argv.includes('--enrichment-once'))break
     if(process.argv.includes('--enrichment-only')){
       await sleep(3000)
       continue

@@ -10,8 +10,11 @@ Para Docker, copie .env.example para .env, preencha três senhas distintas e exe
 npm test, npm run typecheck e npm run build. TEST_DATABASE_URL habilita integração em banco descartável com migrations aplicadas. OBSERVABR_LIVE=1 habilita contratos oficiais e requer rede. Testes de navegador usam CHROME_BIN e node --test apps/web/tests/browser.test.mjs. O teste live requer OBSERVABR_TEST_URL.
 
 ## Cobertura
-Busca, perfis, despesas, proposições, votações, votos nominais, CSV/JSON por página, proveniência, revisões e fila possuem implementação. Cobertura e períodos são parciais. O banco local preservado contém 513 deputados, 100 despesas, 101 proposições distintas entre fichas e referências documentadas, 46 vínculos de autoria, 1.585 votações e 404 registros nominais.
-A coleta de despesas foi interrompida na segunda página. Consulte docs/PROJECT_STATE.md para o diagnóstico e a retomada. Supabase remoto, demais fontes e IA aguardam implementação ou homologação.
+Busca, perfis, despesas, proposições, votações, votos nominais, CSV/JSON por página, proveniência, revisões e fila possuem implementação. Cobertura e períodos são parciais. O snapshot migrado ao Supabase contém 513 deputados, 100 despesas, 160 registros de proposições entre fichas e referências documentadas, 46 vínculos de autoria, 1.585 votações e 404 registros nominais. A cópia local foi preservada.
+A coleta de despesas foi interrompida na segunda página. Consulte docs/PROJECT_STATE.md para o diagnóstico e a retomada. O acervo foi importado e verificado no Supabase remoto; a publicação de site/API e o agendamento do Scout ainda aguardam configuração da hospedagem. Demais fontes e IA aguardam implementação ou homologação.
+
+## Operação na nuvem
+O relatório consolidado está em [docs/RELATORIO_ENTREGA_2026-11-26.md](docs/RELATORIO_ENTREGA_2026-11-26.md). O roteiro gratuito, credenciais separadas, limites e recuperação estão em [docs/CLOUD_DEPLOYMENT.md](docs/CLOUD_DEPLOYMENT.md). render.yaml prepara o serviço Docker gratuito; o workflow Scout permanece condicionado à configuração do secret e à variável de ativação. Nenhum segredo faz parte do repositório.
 
 Leia docs/PROJECT_STATE.md, docs/DATA_SOURCES.md, docs/THREAT_MODEL.md e DESIGN.md antes de contribuir. Licença MIT para o código próprio. As fontes conservam suas condições de reutilização.
 

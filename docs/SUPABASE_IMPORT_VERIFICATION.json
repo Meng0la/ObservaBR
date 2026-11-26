@@ -1,0 +1,63 @@
+{
+  "project": "ajhvfqqooqamnoqxqnvh",
+  "timezone": "UTC",
+  "algorithm": "SHA-256 over PostgreSQL canonical JSONB rows sorted with C collation and joined by newline",
+  "rawBytes": 1426028,
+  "invalidRawHashes": 0,
+  "tables": [
+    {
+      "table": "source_documents",
+      "rows": 53,
+      "sha256": "5326d484667e1d4cd561187c4e6b1d1666cc78764bd61bec974915f70ca28d3c",
+      "matches": true
+    },
+    {
+      "table": "records",
+      "rows": 2762,
+      "sha256": "7d4ccf64cbf17a1516519b2ae04b6db1ed2c24e7bdef095c07bc39be5ac7af52",
+      "matches": true
+    },
+    {
+      "table": "data_revisions",
+      "rows": 1994,
+      "sha256": "b084fbda0eefd85065de1ccfe353919215743ff73ea9e8c88bd90a3a6d383909",
+      "matches": true
+    },
+    {
+      "table": "collection_jobs",
+      "rows": 2616,
+      "sha256": "d0875c38cad60383fba8d735168af92369c7d8f845acb63d34c914d00729bd5c",
+      "matches": true
+    },
+    {
+      "table": "collection_requests",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "table": "api_snapshots",
+      "rows": 53,
+      "sha256": "aff5cbd4f33e03a1eaeb8b5b078d967567e69f31ef0946323a8ea3a92f7c63c0",
+      "matches": true
+    },
+    {
+      "table": "enrichment_jobs",
+      "rows": 4,
+      "sha256": "d8ea6e0aee1e2c15c37a9a471960466bc92dc1125a273886f1fb9d00f9f8ad7c",
+      "matches": true
+    },
+    {
+      "table": "entity_contexts",
+      "rows": 4,
+      "sha256": "1d127a43e96c1c3adf8b1775d25bf630c064d46a0faee7d2e1d4d88a075a5201",
+      "matches": true
+    },
+    {
+      "table": "enrichment_documents",
+      "rows": 34,
+      "sha256": "ce5589351e4e53c79e3fa913d8314ef5665e472fd1de447af8ecc542b35fc6a9",
+      "matches": true
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+name: Scout na nuvem
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: scout-production
+  cancel-in-progress: false
+jobs:
+  enrichment:
+    if: github.event_name == 'workflow_dispatch' || vars.OBSERVABR_SCOUT_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.3
+          cache: npm
+      - run: npm ci --omit=dev --no-audit --no-fund
+      - name: Processar lote complementar no Supabase
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo 'Configure o secret OBSERVABR_SCOUT_DATABASE_URL antes de ativar a operação.'
+            exit 1
+          fi
+          timeout --signal=TERM --kill-after=30s 300s node apps/worker/index.ts --enrichment-batch
+        env:
+          DATABASE_URL: ${{ secrets.OBSERVABR_SCOUT_DATABASE_URL }}
+          SCOUT_MAX_JOBS: '3'
+          SCOUT_MAX_SECONDS: '180'
