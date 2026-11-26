@@ -7,6 +7,7 @@ import {existsSync} from 'node:fs'
 import type pg from 'pg'
 import {z,ZodError} from 'zod'
 import {enrichmentRoutes} from './enrichment.ts'
+import {recordId} from '../../packages/database/record-id.ts'
 
 const kinds=z.enum(['politician','expense','proposal','vote','ballot'])
 const id=z.string().trim().min(1).max(250)
@@ -106,6 +107,7 @@ export async function app(db:pg.Pool) {
   })
   api.get('/api/records/:kind/:id',async(req,reply)=>{
     const p=z.object({kind:kinds,id}).parse(req.params)
+    p.id=await recordId(db,p.kind,p.id)
     const result=await db.query('select '+fields+" from records where kind=$1 and (id=$2 or ($1='proposal' and data->>'proposalId'=$2)) order by (id=$2) desc,id limit 1",[p.kind,p.id])
     return result.rows[0]??reply.code(404).send({error:'Registro ausente no índice'})
   })

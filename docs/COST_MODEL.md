@@ -1,7 +1,17 @@
 # Modelo de custos — planejamento
+Infraestrutura já existente: Render Free, Supabase e runners GitHub-hosted em repositório público. Esta etapa não autoriza serviços faturáveis ou coleta ilimitada. Medição inicial de 26/11/2026: aproximadamente 21,1 MB no banco; limites e orçamento dos lotes serão registrados no relatório com fontes atuais dos provedores.
+
 Nenhuma infraestrutura foi contratada nesta fase. Não há estimativa monetária verificada de fornecedores.
 Medir separadamente compute da API, horas do worker, banco e índices, armazenamento bruto, backups, logs, requisições e transferência.
 Custo mensal = compute + banco + GB-mês de objetos e backups + operações + transferência + observabilidade.
 Projetar cenários a partir de registros/dia, bytes/registro, revisões/dia, requisições/minuto e retenção. Incluir custo de restauração e atualização dos históricos.
 Alertas sugeridos devem ter orçamento definido pelo mantenedor. Revisar planos e preços oficiais antes de qualquer contratação. Redis e embeddings dependem de justificativa medida.
 
+
+Piloto isolado de despesas: 448 linhas/5 páginas, 216.614 bytes úteis, cinco requisições e aproximadamente 6,10 s de execução de dois lotes (não inclui inicialização de runner, instalação ou retries). O arquivo anual completo transferiu 5.998.720 bytes e expandiu para 62.723.068. Medições de um recorte não são custo mensal nem SLA.
+
+Limites oficiais conferidos em 26/11/2026: [Supabase Free](https://supabase.com/pricing) inclui 500 MB de banco, 1 GB de arquivos e 5 GB de egress, com pausa após uma semana de inatividade. [GitHub Actions](https://docs.github.com/en/billing/concepts/product-billing/github-actions) mantém runners standard gratuitos em repositórios públicos; runners maiores e armazenamento têm regras distintas. O workflow usa ubuntu-24.04 standard e não publica artifacts de dados. [Render Free](https://render.com/docs/free) suspende web service após 15 minutos sem tráfego e não oferece disco persistente gratuito. Não usar pings artificiais para evitar suspensão.
+
+Banco remoto inicial 21.124.787 bytes = 4,22% do orçamento conservador de 500.000.000 bytes. Alertas de banco: 350/425/475 milhões de bytes; fila: 7.000/8.500/9.500 para limite operacional 10.000. Lote padrão: três tarefas, 180 s, 12 requisições, 3 MiB; fila de produtores reserva capacidade antes de criar até 200 tarefas por página. Bloqueia novo lote com reserva de bytes acima de 95% do limite de banco. Isso reduz crescimento, mas não é garantia de quota faturada: TOAST, índices, WAL e serviços do provedor têm custos distintos. Monitorar o painel do provedor para egress e conexões máximas, que não foram medidos por este script.
+
+POC: 170.615 observações projetadas medem cerca de 76,46 B/linha CSV, 125,48 B/linha JSON, 119,08 B/linha PostgreSQL com PK e 5,13 B/linha Parquet. Um milhão de observações desse mesmo formato seria aproximadamente 119 MB somente dessa tabela PostgreSQL, antes de evidências, revisões e outros índices. Não extrapolar essa densidade para todos os tipos, nem prever data de esgotamento sem taxa temporal real. Sem R2, serviços pagos ou movimentação fria de produção.

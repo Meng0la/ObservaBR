@@ -37,7 +37,11 @@ test('preserva estorno, diferencia crédito e débito e oculta fornecedor pessoa
     { ...row, dataDocumento: '2025-01-03T00:00:00' }
   ])
   assert.notEqual(reused.records[0].id, reused.records[1].id)
-  assert.throws(() => page(expenses, [row, row]), /ambíguas/)
+  const duplicate=page(expenses,[row,row])
+  assert.equal(duplicate.records.length,1)
+  assert.equal(duplicate.observations.length,2)
+  assert.equal(duplicate.duplicates,1)
+  assert.throws(()=>page(expenses,[row,{...row,valorDocumento:99}]),/ambíguas/)
 })
 
 test('mantém coautorias e preserva o voto registrado sem inferir ausências', () => {

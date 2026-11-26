@@ -1,4 +1,7 @@
 # ObservaBR — instruções permanentes
+## Engenharia de dados
+Conciliação de despesas e agendamento geral exigem piloto isolado, dry-run revisável e autorização operacional explícita antes da produção. Preservar bytes, revisões e aliases; não excluir registros para resolver colisões. Manter o agendamento complementar separado. A etapa não autoriza coleta massiva, serviços faturáveis, módulo judicial ou IA. Atualizar DATA_ENGINEERING_VALIDATION.md e os documentos de continuidade após cada marco.
+
 ## Missão
 Manter uma plataforma aberta, independente e apartidária de inteligência pública baseada em fontes verificáveis. Aplicar presunção de inocência, privacidade e critérios uniformes.
 
@@ -24,3 +27,5 @@ Use Manrope para interface, Newsreader para títulos editoriais e IBM Plex Mono 
 
 ## Enriquecimento e API Explorer
 Detalhes complementares são coletados pelo Scout e armazenados antes da apresentação. A API pública consulta o índice e aceita somente tipo/ID homologados. Preserve o registro de rotas, cache persistente, lock do consumidor, deduplicação e política de supressão. Nunca apresente uma projeção com supressões como resposta integral. O SHA-256 refere-se aos bytes coletados. Preserve a distinção entre placar oficial, registros nominais, orientação de bancada, proposição principal, possíveis objetos e objeto efetivamente votado. Cada interpretação deve conservar referências por campo. Uma nova coleta mensal deve preservar o contexto já enriquecido até sua atualização pelo detalhe homologado.
+
+Checkpoint operacional: fila geral preparada somente para execução manual; não habilitar schedule sem aprovação. Divergência comprovada entre API e arquivo anual CEAP bloqueia a substituição automática de valores. Não inverter sinais por heurística. Histórico remoto reconciliado; migration nova continua local. Backup externo exige destino privado verificado; ensaio local não equivale a rotina externa ativa.

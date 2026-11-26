@@ -1,0 +1,22 @@
+# Referências de engenharia — 26/11/2026
+
+Análise de README, licença e amostras de implementação, sem incorporar código ou datasets externos. O recorte não constitui auditoria integral de segurança dos projetos. A infraestrutura do ObservaBR permanece Node.js/TypeScript, Fastify, PostgreSQL, Vanilla/Vite e GitHub Actions.
+
+| Projeto | Evidência examinada | Técnicas úteis e limites |
+| --- | --- | --- |
+| [WeThePeople](https://github.com/Obelus-Labs-LLC/WeThePeople) | README, LICENSE e [sync_votes.py](https://github.com/Obelus-Labs-LLC/WeThePeople/blob/main/jobs/sync_votes.py), blob bc0e33ceacdda1d0020307e07bcbfd19f56d9207 | Separação de conectores/jobs/modelos; ligação de votos por identificador institucional, paginação por offset, limite de itens, timeout e intervalo entre chamadas. O trecho interrompe o loop em erro e devolve o que já reuniu: no ObservaBR isso exige estado partial e checkpoint, jamais cobertura integral. Backend Python/FastAPI e SQLite não justificam migração do stack atual. |
+| [OpenSanctions](https://github.com/opensanctions/opensanctions) | README, LICENSE e [Context](https://github.com/opensanctions/opensanctions/blob/main/zavod/zavod/context.py), blob d6ad43a1f78dec4eb66308ecd8cef9e9823af2fd | Contexto por dataset/versão, recursos e estatísticas separados, cache, issues e emissão de statements. Inspira manifests, observações por campo e correções rastreáveis. Resolução de identidade tem artefato próprio; sem fusão por coincidência de nome. Não importar suas listas para criar associações judiciais. |
+| [FollowTheMoney](https://github.com/opensanctions/followthemoney) | README, LICENSE e [EntityProxy](https://github.com/opensanctions/followthemoney/blob/main/followthemoney/proxy.py), blob 8fec2d23319a43c820483edec6c9a5b436598d78 | Entidades tipadas, propriedades validadas, namespace de identidade e valores múltiplos sem repetição. Contexto adicional permanece na serialização. Útil para futura normalização progressiva de entidades/relações com evidência, sem substituir records nem adicionar a biblioteca Python. Deduplicar valores iguais não prova identidade entre pessoas. |
+| [Querido Diário](https://github.com/okfn-brasil/querido-diario) | README, LICENSE.md e [pipelines](https://github.com/okfn-brasil/querido-diario/blob/main/querido_diario_raspadores/gazette/pipelines.py), blob 3e69c7a379bd2e213238cde5532cd53188c4ab3e | Scrapy e raspadores por território; pipelines de recorte temporal, valores padrão, data de coleta e persistência separada por API. Verifica estado de arquivo já atualizado. Inspira homologação por fonte, checkpoints e isolamento transporte/normalização/publicação. Não autoriza habilitar coleta municipal nesta etapa. |
+
+## Licenças e reutilização
+
+[WeThePeople LICENSE](https://github.com/Obelus-Labs-LLC/WeThePeople/blob/main/LICENSE): AGPL-3.0. Não foi copiado código para o ObservaBR MIT. Foram consideradas técnicas arquiteturais, sem adicionar dependência ou derivação dessa implementação.
+
+[OpenSanctions LICENSE](https://github.com/opensanctions/opensanctions/blob/main/LICENSE): código MIT. README distingue dados CC BY-NC 4.0 e fontes com condições próprias; licença de software não licencia indistintamente os dados. Nenhum dado reutilizado. [FollowTheMoney LICENSE](https://github.com/opensanctions/followthemoney/blob/main/LICENSE) e [Querido Diário LICENSE.md](https://github.com/okfn-brasil/querido-diario/blob/main/LICENSE.md): MIT. Não foi necessário reutilizar implementações; eventual cópia futura exige preservar os avisos aplicáveis.
+
+## Decisões para o ObservaBR
+
+Manter observação da fonte separada do registro interpretado; ciclo e recibos identificam páginas completas e parciais. Arquivos oficiais recebem hash dos bytes, linha e versão de formato antes de qualquer ligação com registros da API. Falhas permanecem recuperáveis ou em quarentena; nenhum retorno parcial se torna confirmação de exclusão.
+
+Manter JSONB para atributos variáveis e chaves institucionais para relações comprovadas. Normalizar fornecedores/mandatos somente após homologar identidade e medir consultas. Índices pertencem a consultas reais; o grafo visual não exige banco de grafos. Nenhuma dessas referências demonstra necessidade atual de Elasticsearch, Redis ou outro runtime. Histórico de valores e evidências do ObservaBR continua em revisões e documentos; a amostragem externa não comprovou equivalência integral dos modelos históricos ou dos índices de cada projeto.

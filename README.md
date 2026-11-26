@@ -27,9 +27,17 @@ O panorama editorial e as consultas documentais compartilham tokens OKLCH, temas
 ## Enriquecimento e API Explorer
 A votação #registro/vote/2520670-66 demonstra o caso real do PLP 128/2025. A navegação contextual apresenta destaque, autoria, placar, votos, orientações, tramitação e documentos. O Explorer oferece dados interpretados, resposta publicável e metadados. Campos suprimidos são identificados.
 
-Em instalações existentes, aplique supabase/migrations/202611260003_enrichment.sql após 001 e 002, antes de atualizar API e Scout. Um volume Docker novo aplica todas em ordem.
+Em instalações existentes, consulte docs/MIGRATION_RECONCILIATION.md antes de aplicar SQL: o histórico remoto já contém o enriquecimento como 20261126114431_enrichment e não deve ser reaplicado. Um volume Docker novo aplica os arquivos canônicos em ordem. A migration de engenharia permanece pendente no remoto; não atualizar API/Scout desta branch antes de sua revisão e aplicação autorizada.
 Com DATABASE_URL do coletor, node scripts/backfill-evidence.ts disponibiliza as evidências históricas publicáveis e node scripts/backfill-vote-fields.ts recupera campos descartados da listagem. São operações idempotentes que usam o acervo local.
 O processo npm run worker consome pedidos complementares feitos na interface. node scripts/enrich.ts vote ID_DA_VOTACAO permite um processamento administrativo delimitado com o mesmo lock e cache.
 
 Consulte docs/architecture/0002-enrichment.md, docs/API_EXPLORER.md, docs/ENRICHMENT_VALIDATION.md e docs/PROJECT_STATE.md para contratos, configuração, testes e cobertura.
 Para atender apenas as solicitações complementares da interface, mantenha node apps/worker/index.ts --enrichment-only em execução com a credencial do coletor. A aba Contexto acompanha solicitações pendentes automaticamente. Os modos do Scout compartilham o mesmo lock e devem usar um único consumidor.
+
+## Engenharia de dados — validação controlada
+
+Relatório incremental: [DATA_ENGINEERING_VALIDATION.md](docs/DATA_ENGINEERING_VALIDATION.md). Implementados CLI de lote geral limitado e workflow manual independente, conciliação dry-run com plano por hash, aliases, dead-letter, quarentena e ciclos de cobertura. Produção não recebeu esta branch nem a conciliação financeira; o agendamento complementar existente foi preservado.
+
+Com schema de engenharia instalado em banco isolado e DATABASE_URL writer: `node scripts/collect-batch.ts --kind=expense --owner=204379 --year=2025 --max-tasks=1 --max-seconds=120`. Retoma checkpoints, sem reset. O script `node scripts/reidentify-expenses.ts --owner=204379 --year=2025` apenas planeja por padrão; aplicar exige hash e autorização operacional. O arquivo anual diverge da API; não inverter sinais ou publicar uma fusão por heurística.
+
+[Armazenamento](docs/STORAGE_STRATEGY.md) contém prova com CSV/JSON/PostgreSQL/Parquet-Zstandard, 170.615 observações oficiais e DuckDB exclusivamente local. [Backup e recuperação](docs/BACKUP_RECOVERY.md) documenta cifragem, retenção e restauração ensaiada; destino externo privado ainda pendente. `node scripts/data-metrics.ts` registra snapshots privados e alertas configuráveis em 70/85/95. [Referências arquiteturais e licenças](docs/REFERENCE_ARCHITECTURES.md) registram a auditoria sem novas dependências de produção.

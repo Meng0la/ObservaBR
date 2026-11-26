@@ -1,6 +1,7 @@
 import type {FastifyInstance} from 'fastify'
 import type pg from 'pg'
 import {z} from 'zod'
+import {recordId} from '../../packages/database/record-id.ts'
 
 const entity=z.object({kind:z.enum(['politician','expense','proposal','vote','ballot','body','event']),id:z.string().min(1).max(180)})
 const voteId=z.object({id:z.string().regex(/^[1-9]\d{0,13}-\d{1,10}$/)})
@@ -43,6 +44,7 @@ export function enrichmentRoutes(api:FastifyInstance,db:pg.Pool) {
  })
  api.get('/api/evidence/:kind/:id',async(req,reply)=>{
   const p=entity.parse(req.params)
+  p.id=await recordId(db,p.kind,p.id)
   let normalized
   if(['body','event'].includes(p.kind)){
    const cached=await db.query('select payload from api_snapshots where resource=$1 and external_id=$2 order by verified_at desc limit 1',[p.kind,p.id])

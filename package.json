@@ -12,7 +12,7 @@
     "worker": "node apps/worker/index.ts",
     "build": "vite build apps/web",
     "dev": "vite apps/web",
-    "test": "node --test tests/*.test.ts",
+    "test": "node --test --test-concurrency=1 tests/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

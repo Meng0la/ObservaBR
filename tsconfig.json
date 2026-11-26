@@ -11,6 +11,7 @@
     "apps/api",
     "apps/worker",
     "packages",
-    "tests"
+    "tests",
+    "scripts"
   ]
 }

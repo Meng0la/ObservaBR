@@ -1,0 +1,55 @@
+name: Coleta geral controlada
+on:
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: Tipo de coleta
+        type: choice
+        options: [politician, expense, proposal, vote, ballot, all]
+        default: politician
+      year:
+        description: Ano de referência
+        default: '2025'
+        required: true
+      month:
+        description: Mês das tarefas de votação (opcional)
+        default: ''
+      owner:
+        description: Identificador institucional do proprietário (opcional)
+        default: ''
+      max_tasks:
+        description: Máximo de páginas/tarefas por execução
+        default: '1'
+      max_seconds:
+        description: Orçamento de duração em segundos
+        default: '120'
+permissions:
+  contents: read
+concurrency:
+  group: scout-production
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.3
+          cache: npm
+      - run: npm ci --omit=dev --no-audit --no-fund
+      - name: Consumir somente o lote autorizado
+        run: >-
+          timeout --signal=TERM --kill-after=30s 660s node scripts/collect-batch.ts
+          "--kind=$COLLECTION_KIND" "--year=$COLLECTION_YEAR" "--month=$COLLECTION_MONTH"
+          "--owner=$COLLECTION_OWNER" "--max-tasks=$MAX_TASKS" "--max-seconds=$MAX_SECONDS"
+        env:
+          DATABASE_URL: ${{ secrets.OBSERVABR_SCOUT_DATABASE_URL }}
+          NODE_EXTRA_CA_CERTS: ${{ github.workspace }}/infrastructure/certs/supabase-prod-ca-2021.crt
+          COLLECTION_KIND: ${{ inputs.kind }}
+          COLLECTION_YEAR: ${{ inputs.year }}
+          COLLECTION_MONTH: ${{ inputs.month }}
+          COLLECTION_OWNER: ${{ inputs.owner }}
+          MAX_TASKS: ${{ inputs.max_tasks }}
+          MAX_SECONDS: ${{ inputs.max_seconds }}
