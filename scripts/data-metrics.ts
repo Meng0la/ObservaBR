@@ -19,7 +19,9 @@ try{
  const runs=hasRuns?(await db.query(`select count(*)::int executions,coalesce(sum(tasks),0)::text tasks,coalesce(sum(pages),0)::text pages,
   coalesce(sum(records),0)::text published_observations,coalesce(sum(failures),0)::text failures,
   coalesce(sum(bytes),0)::text bytes,coalesce(sum(requests),0)::text requests,
+  sum(failures)::float8/nullif(sum(tasks),0) failure_rate,
   avg(extract(epoch from finished_at-started_at))::float8 mean_seconds,
+  sum(records)/nullif(sum(extract(epoch from finished_at-started_at)),0)::float8 records_per_second,
   sum(pages)/nullif(sum(extract(epoch from finished_at-started_at)),0)::float8 pages_per_second
   from collection_runs where finished_at>=now()-interval '24 hours'`)).rows[0]:null
  const cycles=hasRuns?(await db.query(`select j.kind,c.status,count(*)::int cycles,sum(c.source_rows)::text observed_source_rows,

@@ -1,6 +1,6 @@
 # Backup e recuperação
 
-Implementado e ensaiado localmente em 26/11/2026. Não há destino externo nem agendamento de backup em produção configurados. O ensaio usa uma cópia de engenharia; não é um backup recente da produção. Arquivos privados ficam em .tools ou em volume privado definido pelo operador, nunca no Git, no build, em logs ou em artifacts públicos.
+Implementado e ensaiado localmente em 26/11/2026. O mantenedor escolheu explicitamente manter apenas o procedimento preparado por enquanto. Não há destino externo nem agendamento de backup em produção configurados; não provisionar até nova instrução. O ensaio usa uma cópia de engenharia; não é um backup recente da produção. Arquivos privados ficam em .tools ou em volume privado definido pelo operador, nunca no Git, no build, em logs ou em artifacts públicos. O contexto Docker também exclui backups, postgres-data e arquivos de segredo privados.
 
 ## Rotina automatizável
 
