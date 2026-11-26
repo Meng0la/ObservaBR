@@ -1,0 +1,3 @@
+observa-eye {display:inline-block;width:1.35em;height:1.35em;flex:none;line-height:0;vertical-align:middle;color:var(--ink);letter-spacing:0}
+observa-eye svg {display:block;width:100%;height:100%;overflow:hidden}
+observa-eye [data-eye-iris] circle:last-child {fill:var(--brand)}

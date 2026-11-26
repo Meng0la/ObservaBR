@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ObservaBR">
+  <rect width="64" height="64" rx="12" fill="#151c22"/>
+  <path d="M8 32C17 20 24 16 32 16s15 4 24 16c-9 12-16 16-24 16S17 44 8 32Z" fill="none" stroke="#f1eee8" stroke-width="3.5" stroke-linejoin="round"/>
+  <circle cx="32" cy="32" r="9" fill="none" stroke="#f1eee8" stroke-width="2.5"/>
+  <circle cx="32" cy="32" r="4.5" fill="#e9a58a"/>
+</svg>

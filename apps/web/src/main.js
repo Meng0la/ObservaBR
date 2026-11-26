@@ -1,6 +1,7 @@
 import './fonts.css'
 import './tokens.css'
 import './style.css'
+import './observa-eye.js'
 import {el, link, button, empty, icon, names, singular, statusLabel, currency, brDate, digits, read, evidence, sourceLink} from './ui.js'
 import {ufByCode, origin, drawMap, drawHistory, drawAffiliation} from './visuals.js'
 

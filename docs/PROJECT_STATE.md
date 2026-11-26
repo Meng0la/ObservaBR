@@ -1,4 +1,11 @@
 # Continuidade — ObservaBR
+## Identidade animada — 26/11/2026
+Olho fornecido integrado ao cabeçalho em `<observa-eye>`, componente nativo reutilizável com SVG e requestAnimationFrame. Contorno fixo, íris e pupila limitadas internamente, retorno suave e cores herdadas dos tokens dos dois temas. Touch e movimento reduzido mantêm a versão estática. Favicon substituído pelo SVG estático fornecido. Implementação, origem dos arquivos e contrato de reutilização descritos em DESIGN.md.
+
+Validação: build e typecheck aprovados; 13 testes de backend aprovados em observabr_test, dois contratos externos ignorados; dois testes Chrome aprovados (regressão da navegação e marca). Dez capturas nas larguras 390–1920, ambos os temas, sem overflow ou erros de console, em .tools/brand-eye. Capturas de 390 e 1440 inspecionadas visualmente. A primeira execução da integração usou nome de role incorreto e falhou na autenticação; repetida com o administrador local correto, passou integralmente. Permanecem os avisos anteriores de chunks grandes e depreciações Fastify/pg. Nenhuma migration ou mudança de contrato de dados nesta tarefa. API e Scout existentes preservados.
+
+Entrega solicitada: commit e push para origin/main. Próximo checkpoint: conferir a marca na instalação local após atualizar a página e aguardar nova tarefa; nenhum deploy solicitado.
+
 Checkpoint de 26/11/2026. Etapa atual é enriquecimento legislativo, correção das votações e API Explorer, autorizada após o envio da Fase 02 ao GitHub. Implementação concluída e validada, incluindo o caso real do PLP 128/2025.
 
 ## Git e entrega
