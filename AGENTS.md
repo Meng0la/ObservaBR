@@ -30,3 +30,17 @@ Use Manrope para interface, Newsreader para títulos editoriais e IBM Plex Mono 
 Detalhes complementares são coletados pelo Scout e armazenados antes da apresentação. A API pública consulta o índice e aceita somente tipo/ID homologados. Preserve o registro de rotas, cache persistente, lock do consumidor, deduplicação e política de supressão. Nunca apresente uma projeção com supressões como resposta integral. O SHA-256 refere-se aos bytes coletados. Preserve a distinção entre placar oficial, registros nominais, orientação de bancada, proposição principal, possíveis objetos e objeto efetivamente votado. Cada interpretação deve conservar referências por campo. Uma nova coleta mensal deve preservar o contexto já enriquecido até sua atualização pelo detalhe homologado.
 
 Checkpoint operacional: fila geral preparada somente para execução manual; não habilitar schedule sem aprovação. Divergência comprovada entre API e arquivo anual CEAP bloqueia a substituição automática de valores. Não inverter sinais por heurística. Histórico remoto reconciliado; migration nova continua local. Backup externo exige destino privado verificado; ensaio local não equivale a rotina externa ativa.
+
+
+## Política de versionamento e publicação
+
+- Nunca realizar push direto na branch main.
+- Criar uma branch independente para cada funcionalidade.
+- Abrir Pull Requests inicialmente como Draft.
+- Executar testes, typecheck, build e análise de segurança.
+- Documentar alterações, migrations, riscos e pendências.
+- Informar a ordem de execução entre migrations e deploy.
+- Apresentar um procedimento de rollback.
+- Não realizar merge automaticamente.
+- Não executar migrations em produção sem autorização.
+- Aguardar a revisão e autorização explícita do mantenedor antes da publicação.
