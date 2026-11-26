@@ -29,5 +29,6 @@ jobs:
           timeout --signal=TERM --kill-after=30s 300s node apps/worker/index.ts --enrichment-batch
         env:
           DATABASE_URL: ${{ secrets.OBSERVABR_SCOUT_DATABASE_URL }}
+          NODE_EXTRA_CA_CERTS: ${{ github.workspace }}/infrastructure/certs/supabase-prod-ca-2021.crt
           SCOUT_MAX_JOBS: '3'
           SCOUT_MAX_SECONDS: '180'

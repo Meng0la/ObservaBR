@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import type {TLSSocket} from 'node:tls'
 import {database} from '../packages/database/index.ts'
 import {app} from '../apps/api/app.ts'
 
@@ -6,12 +7,16 @@ import {app} from '../apps/api/app.ts'
 const pool=database()
 const api=await app(pool)
 try {
+  const client=await pool.connect()
+  try {
+    const stream=(client as unknown as {connection:{stream:TLSSocket}}).connection.stream
+    assert.equal(stream.encrypted,true)
+    assert.equal(stream.authorized,true)
+  } finally {client.release()}
   const session=await pool.query(`select current_user as role,
-    has_table_privilege(current_user,'observabr.source_documents','select') as raw_access,
-    (select ssl from pg_stat_ssl where pid=pg_backend_pid()) as tls`)
+    has_table_privilege(current_user,'observabr.source_documents','select') as raw_access`)
   assert.equal(session.rows[0].role,'observabr_api')
   assert.equal(session.rows[0].raw_access,false)
-  assert.equal(session.rows[0].tls,true)
   await assert.rejects(pool.query('select raw from source_documents limit 1'),{code:'42501'})
   for(const path of ['/api/health','/api/summary','/api/records?kind=politician&page=1',
     '/api/records?kind=politician&format=csv','/api/votes/2520670-66']) {
