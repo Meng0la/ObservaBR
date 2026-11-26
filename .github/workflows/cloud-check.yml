@@ -1,0 +1,19 @@
+name: Verificar API no Supabase
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reader:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.3
+          cache: npm
+      - run: npm ci --omit=dev --no-audit --no-fund
+      - run: node scripts/cloud-smoke.ts
+        env:
+          DATABASE_URL: ${{ secrets.OBSERVABR_API_DATABASE_URL }}
