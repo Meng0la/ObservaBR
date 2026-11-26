@@ -16,3 +16,6 @@ Cada módulo depende de fonte homologada, identidade institucional, evidência i
 
 ## Fase 02 — entrega de frontend
 Direção híbrida editorial e documental implementada. Identidade tipográfica, tokens OKLCH, temas, composição pública, diretório e perfil, evidências, cartografia e demonstração de componentes. Consulte VISUAL_AUDIT.md e PROJECT_STATE.md para verificação e limitações. A evolução dos dados e as próximas fases exigem tarefa própria.
+
+## Etapa autorizada de enriquecimento
+Implementados registro de recursos, snapshots públicos, cache e fila complementar, relações com evidência, votação contextualizada e API Explorer reutilizável. Caso inicial validado no PLP 128/2025, destaque 8. A expansão do mesmo mecanismo às demais votações é progressiva. Novas instituições, XML e módulos sem conector homologado exigem contrato e política de publicação próprios.

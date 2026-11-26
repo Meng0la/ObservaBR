@@ -10,3 +10,9 @@
 kind admite politician, expense, proposal, vote e ballot. amount reproduz o líquido CEAP, incluindo estorno. date representa a data fornecida pelo recurso, sem inferir publicação. Valores ausentes permanecem nulos. data varia conforme o tipo e está descrito em CAMARA.md.
 Não há cadastro nacional normalizado completo. UF de despesa é a representação do autor e requer cuidado ao interpretar distribuição territorial.
 
+
+## Migração 003
+api_snapshots conserva id derivado de URL/hash, recurso, identificador, URL da API, hash original, payload público, indicador original, caminhos suprimidos, datas e versão.
+enrichment_jobs usa chave kind/external_id, status, próxima tentativa, atualização e erro operacional. A entidade deve existir em records.
+entity_contexts mantém a interpretação atual e referências por campo.
+enrichment_documents relaciona entidades e snapshots. Todos os novos conjuntos possuem RLS, leitura pública limitada às projeções e escrita pelo coletor.

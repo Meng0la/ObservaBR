@@ -20,3 +20,6 @@ A comparação visual foi manual, com screenshots e assinaturas SHA-256 geradas 
 Os testes iniciais evidenciaram bloqueio de rede para fotos, timeouts e nomes acessíveis ambíguos nos selects. Foram adicionados nomes explícitos, uma captura de diagnóstico e espaçamento entre navegações. A execução final usou o Chrome com acesso autorizado às fotos institucionais. Canvas, imagens e controles nativos ficam fora do cálculo automatizado de contraste e exigem inspeção própria. Auditoria com leitores de tela e aparelhos físicos continua recomendada antes da publicação.
 
 Consulte PHASE02_VALIDATION.md para comandos, métricas e limitações de medição.
+
+## Enriquecimento legislativo
+A nova votação e a tabela nominal foram verificadas em cinco larguras, nos dois temas, com capturas em .tools/enrichment. A descrição extensa da última apresentação ficou em um bloco expansível para manter a leitura móvel. A lista de campos suprimidos do Explorer também é expansível. Cores, fontes, navegação e foco reutilizam o design system da Fase 02. Resultados e limites em ENRICHMENT_VALIDATION.md.

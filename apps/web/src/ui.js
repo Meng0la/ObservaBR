@@ -81,6 +81,11 @@ export function evidence(row) {
     el('p',{},'Registro normalizado a partir de uma resposta da API oficial. A cobertura depende das páginas coletadas.'),
     el('div',{class:'actions'},sourceLink('Abrir publicação original', row.source_url), sourceLink('Consultar resposta da API', row.api_url)))
   const dialog=document.querySelector('#evidence')
+  if(row.kind&&row.id){
+    const target=row.kind==='politician'?'#politician/'+encodeURIComponent(row.id)+'/fontes':
+      '#registro/'+row.kind+'/'+encodeURIComponent(row.id)+(row.kind==='vote'?'/api':'')
+    document.querySelector('#evidence-body').append(el('a',{href:target,onclick:()=>dialog.close()},'Abrir API Explorer no ObservaBR'))
+  }
   dialog.classList.add('evidence-panel')
   dialog.showModal()
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches)dialog.animate([{opacity:0,transform:'translateX(12px)'},{opacity:1,transform:'none'}],{duration:180,easing:'ease-out'})

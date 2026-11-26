@@ -1,43 +1,55 @@
 # Continuidade — ObservaBR
-Checkpoint em 26/11/2026. Fase atual é a Fase 02, identidade visual e frontend. A Fase 02 está implementada e validada. Nenhuma próxima fase está autorizada automaticamente.
+Checkpoint de 26/11/2026. Etapa atual é enriquecimento legislativo, correção das votações e API Explorer, autorizada após o envio da Fase 02 ao GitHub. Implementação concluída e validada, incluindo o caso real do PLP 128/2025.
 
-## Última entrega
-Direção híbrida selecionada após dois protótipos locais. Panorama editorial e exploração documental usam Manrope, Newsreader e IBM Plex Mono, temas OKLCH, marca tipográfica, tabelas, perfil contextual e painel de evidências. Mapa IBGE mantém o worker Vite e possui tooltip e navegação por UF. Fontes e Cobertura concentra fila, falhas e períodos documentais.
+## Git e entrega
+Repositório origin em https://github.com/Meng0la/ObservaBR.git, branch main. O envio inicial da Fase 02 foi concluído no commit f9512fa. O commit inicial anterior é 906434c. A implementação desta etapa está pronta para envio no mesmo repositório. A ausência de Git descrita na Fase 01 pertence ao histórico anterior.
 
-O diretório ganhou filtros reais de partido e ordenação, com suporte parametrizado na API. A rota #sistema demonstra os componentes. Bibliotecas de mapa, gráfico e grafo usam imports dinâmicos. Fotografias possuem fallback quando a origem fica indisponível.
+## Implementado nesta etapa
+- Coletor complementar com registro fechado de recursos da Câmara, validação de identidade e evidência por campo, incluindo SHA-256.
+- Cache persistente por recurso e identificador, reutilização de respostas, snapshots públicos com supressões e fila complementar.
+- Votação contextualizada com proposição principal, objeto, órgão por extenso, sessão, autoria, placar, votos, partidos, orientações, proposições relacionadas, tramitação, documentos e fontes.
+- API Explorer com dados interpretados, resposta coletada e metadados. JSON com expansão, pesquisa, cópia, exportação e vínculos reconhecidos.
+- Registros nominais preservam partido, UF e fotografia da resposta oficial. Os filtros usam essa resposta, sem substituição pelo partido atual do cadastro.
+- Navegação para proposições, representantes, órgão e sessão. Fichas apenas referenciadas indicam complemento pendente e permitem solicitar coleta.
+- Recuperação local de evento, órgão e horário em 1.584 votações a partir das respostas arquivadas. A votação já contextualizada foi preservada.
 
-## Dados e limites preservados
-A API local confirmou 513 representantes, 100 despesas, 46 proposições distintas e 46 vínculos de autoria, 1.585 votações e 404 registros nominais. Os valores continuam parciais.
-A coleta de despesas de 204379/2025 foi interrompida na página 2 por chaves ambíguas. O coletor contém uma chave revisada e scripts/reidentify-expenses.ts existe, mas reidentificação, conciliação e retomada permanecem pendentes. Nenhuma coleta ou migration foi executada na Fase 02.
-As votações são um recorte mensal. A listagem de deputados reflete o momento da coleta. Cobertura estadual, municipal, judicial e de outras instituições exige homologação própria. Não interpretar dados parciais como abrangência nacional completa.
+## Caso real validado
+Votação 2520670-66, sessão de 16/12/2025, PLP 128/2025 e destaque 8 sobre o artigo 8º do substitutivo. A descrição oficial informa texto mantido, 286 Sim, 116 Não e total 402. Há 404 registros nominais, incluindo um de Obstrução e um de Artigo 17. A interface mantém as contagens separadas e usa o total proclamado como denominador.
+O contexto vem da abertura, das proposições afetadas e dos documentos complementares. O primeiro dos 54 possíveis objetos não foi escolhido como objeto efetivo. Consulte VOTE_AUDIT.md e ENRICHMENT_SOURCES.md.
 
-## Verificação
-npm test com banco isolado observabr_test — 8 aprovados, 1 contrato externo ignorado.
-TypeScript, build, smoke HTTP, navegação de fixture a 375 px e navegação sobre os registros reais — aprovados.
-Sentinela sintética de segredo ausente nos 16 arquivos do build.
-A matriz em tests/phase02.test.mjs gera 30 screenshots de três páginas em 390, 768, 1024, 1440 e 1920 px nos dois temas. As capturas avaliadas não apresentam overflow de página nem falhas de contraste amostrado. A verificação completa de interações passou após corrigir os nomes acessíveis dos filtros. Consulte PHASE02_VALIDATION.md e VISUAL_AUDIT.md para resultado final.
+## Cobertura atual
+513 representantes, 100 despesas, 101 proposições distintas, 46 vínculos de autoria, 1.585 votações e 404 registros nominais.
+As 55 proposições relacionadas ao caso incluem duas fichas detalhadas e 53 referências com complemento pendente. As 46 autorias anteriores foram preservadas. O restante das votações aguarda contextualização sob demanda ou expansão controlada.
+A conciliação das despesas de 204379/2025 continua pendente na página 2. Não executar scripts/reidentify-expenses.ts como parte desta etapa. A cobertura estadual, municipal, eleitoral, judicial e de outras fontes continua dependente de tarefas próprias.
 
-Tentativas iniciais detectaram bloqueio de rede do sandbox em fotografias e timeouts de navegação. A execução com rede autorizada permite conferir as fotos institucionais. O teste passou a espaçar chamadas para respeitar os limites da aplicação. O contraste automatizado cobre texto HTML em superfícies sólidas, com canvas e imagens conferidos visualmente. Permanece necessário ampliar auditorias com leitores de tela e dispositivos físicos antes de publicação.
+## Arquitetura e segurança
+Fastify lê PostgreSQL e recebe solicitações por tipo e ID já indexados. O Scout faz as requisições autorizadas. api_snapshots guarda somente a projeção publicável, enquanto os bytes originais permanecem em source_documents, restritos ao writer. A API de leitura não recebe privilégio para consultar o bruto.
+O cache dura 24 horas. Falhas complementares têm nova tentativa em 30 minutos. O mesmo advisory lock serializa o consumidor geral e o complementar. O processamento é idempotente. Revisões do registro e do contexto são preservadas em data_revisions. Documentos iguais não são duplicados integralmente.
+O transporte limita cada chamada a 6 MiB. A seleção do Explorer é limitada a 30 documentos e 8 MiB, com aviso. O visualizador limita profundidade e quantidade de nós. URLs arbitrárias são recusadas. Fonte e hashes continuam associados aos campos.
+Uma listagem mensal não substitui o registro de votação já contextualizado. A atualização desse registro passa pelo detalhe complementar.
+A arquitetura está descrita em architecture/0002-enrichment.md.
 
-## Arquivos relevantes
-- apps/web/src/tokens.css, fonts.css e style.css — sistema visual.
-- apps/web/src/main.js, ui.js, visuals.js e system.js — composição, filtros, fontes, mapa e demonstração.
-- apps/web/index.html e public/mark.svg — shell e marca.
-- apps/web/public/licenses e docs/licenses — avisos OFL das fontes.
-- apps/api/app.ts — filtros reais, partidos e períodos observados.
-- tests/api.test.ts, pipeline.test.ts, phase02.test.mjs e apps/web/tests — contratos e validação.
-- DESIGN.md, DESIGN_SYSTEM.md, DESIGN_REFERENCES.md, PHASE02_API.md e PHASE02_VALIDATION.md — decisões e resultados.
+## Banco e comandos
+Migrations 001_core, 002_observacoes e 003_enrichment aplicadas em observabr e observabr_test. Backup prévio em .tools/pre-enrichment.dump, ignorado pelo Git.
+PostgreSQL portátil 17.12 na porta 54672 e Node 24.22.3 em .tools/node-v24.22.3-win-x64. Credenciais em .tools/*.pass permanecem privadas.
 
-## Ambiente e comandos
-O projeto agora possui Git, com commit inicial 906434c. Nesta retomada nenhuma ação de commit, push ou deploy foi realizada. A ausência de versionamento registrada na Fase 01 descreve o estado anterior.
-Node portátil 24.22.3 em .tools/node-v24.22.3-win-x64. PostgreSQL 17.12 preservado em .tools/pgdata, porta 54672. Credenciais permanecem em .tools/*.pass ignorados pelo Git. Migrations 001_core e 002_observacoes.
-Para executar, inclua o diretório Node no PATH, configure DATABASE_URL de leitura e use npm start. A instância de validação está em http://127.0.0.1:3001. O Scout usa credencial separada e continua sujeito ao escopo de coleta autorizado.
-npm ci instala dependências fixas. npm run build compila. TEST_DATABASE_URL deve apontar exclusivamente a observabr_test ao executar npm test. Para navegador, configure CHROME_BIN, OBSERVABR_TEST_URL e execute node --test tests/phase02.test.mjs. O teste de live usa os dados locais e não equivale a contrato remoto.
-Docker Engine e execução remota do CI não foram validados nesta fase.
+Para atualizar uma instalação existente, aplique somente a migration 003 pendente após 001 e 002. Em volume Docker novo, a inicialização aplica todas em ordem. Mantenha DATABASE_URL de leitura na API e escrita no Scout.
+- npm ci, npm run build, npm start e npm run worker são os comandos usuais.
+- node apps/worker/index.ts --enrichment-once processa uma solicitação complementar disponível.
+- node scripts/enrich.ts vote ID processa uma entidade indexada com lock e cache, usando credencial do coletor.
+- node scripts/backfill-evidence.ts projeta respostas já armazenadas para o Explorer e preserva datas de origem.
+- node scripts/backfill-vote-fields.ts recupera os campos descartados da listagem, sem novo download.
+Os dois backfills foram executados nesta etapa. Repetições são idempotentes. A API de validação atual está em http://127.0.0.1:3003. O Scout precisa permanecer em execução para consumir solicitações da interface.
 
-## Artefatos e desempenho
-Recuperação seletiva anterior às mudanças em .tools/phase02-recovery, sem credenciais. Capturas antes, depois e protótipos em .tools/phase02. Esses arquivos locais são ignorados pelo Git e devem ser preservados para comparação.
-A soma gzip do pacote diminuiu aproximadamente 7,9%. O aviso de chunks acima de 500 kB continua, principalmente MapLibre e worker. Tempos de três amostras locais variaram entre as rotas, conforme PHASE02_VALIDATION.md. Não representam garantia de desempenho de produção.
+## Testes e resultados
+13 testes locais aprovados, com dois contratos externos ignorados no comando padrão. A integração usa exclusivamente observabr_test.
+Os contratos externos foram executados separadamente e resultaram em nove testes aprovados, sem ignorados.
+TypeScript, build, smoke HTTP e sentinela de segredo passaram. O build contém 20 arquivos e mantém o aviso de chunks acima de 500 kB.
+Quatro testes de navegador passaram, incluindo histórico, votação real, exportação, Explorer e a matriz de regressão dos dois temas. O teste específico foi repetido com vinte capturas de contexto e votos em cinco larguras, nos dois temas, sem overflow de página.
+Capturas da nova votação e do Explorer estão em .tools/enrichment. A comparação visual e seus limites estão registrados em ENRICHMENT_VALIDATION.md.
 
-## Próximo checkpoint
-Matriz final aprovada em 26/11/2026, com 30 capturas e verificações de mapa, filtros, exportação, teclado e painel documental. Aguardar a definição da próxima tarefa. Pendências de dados incluem conciliação, exclusões na origem, fila e sua prioridade. Operação pública ainda exige retenção, restauração de backup, limites globais e governança de correções.
+## Limitações e retomada
+Complementos de outras votações são progressivos. Até quatro fichas de proposições são aprofundadas por votação. Os endpoints complementares homologados retornaram listas sem próximo link. Se a fonte passar a paginá-los, a resposta é registrada como recurso parcial até revisar o contrato, conforme ENRICHMENT_SOURCES.md.
+A API Explorer atual atende JSON. Outros formatos e novas instituições precisam de política e contrato próprios. O limite de solicitações públicas é por IP e por instância. Uma operação pública com réplicas exige orçamento global da fila.
+A consulta de navegação ao documento codteor=3069283 recebeu HTTP 429. A identificação do caso foi comprovada pelas demais fontes oficiais. Nenhum bloqueio foi contornado.
+Próximo checkpoint é conferir o commit enviado no GitHub e aguardar a definição da próxima tarefa. Novos módulos exigem instrução própria.

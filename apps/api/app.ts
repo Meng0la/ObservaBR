@@ -6,6 +6,7 @@ import {resolve} from 'node:path'
 import {existsSync} from 'node:fs'
 import type pg from 'pg'
 import {z,ZodError} from 'zod'
+import {enrichmentRoutes} from './enrichment.ts'
 
 const kinds=z.enum(['politician','expense','proposal','vote','ballot'])
 const id=z.string().trim().min(1).max(250)
@@ -19,7 +20,7 @@ const sortFields={
 } as const
 const sort=z.enum(['name-asc','name-desc','date-asc','date-desc','amount-asc','amount-desc'])
 const search=z.object({
-  q:z.string().trim().max(150).default(''),kind:kinds.optional(),owner:id.optional(),voteId:id.optional(),
+  q:z.string().trim().max(150).default(''),kind:kinds.optional(),owner:id.optional(),voteId:id.optional(),vote:z.string().min(1).max(80).optional(),
   uf:z.string().regex(/^[A-Z]{2}$/).optional(),from:z.iso.date().optional(),to:z.iso.date().optional(),
   party:z.string().trim().min(1).max(80).optional(),sort:sort.optional(),
   page:z.coerce.number().int().min(1).max(40000).default(1),format:z.enum(['json','csv']).optional()
@@ -40,6 +41,7 @@ export async function app(db:pg.Pool) {
     workerSrc:["'self'","blob:"],imgSrc:["'self'","data:","blob:","https://www.camara.leg.br","https://www.camara.leg.br/internet/"],
     connectSrc:["'self'","blob:"],upgradeInsecureRequests:null}}})
   await api.register(limiter,{max:180,timeWindow:'1 minute'})
+  enrichmentRoutes(api,db)
   api.setErrorHandler((err,req,reply)=>{
     if(err instanceof ZodError) return reply.code(400).send({error:'Parâmetros inválidos'})
     const e=err as Error & {statusCode?:number,code?:string}
@@ -77,13 +79,14 @@ export async function app(db:pg.Pool) {
     if(q.kind) terms.push('kind='+bind(q.kind))
     if(q.owner) terms.push('owner='+bind(q.owner))
     if(q.voteId) terms.push("data->>'voteId'="+bind(q.voteId))
+    if(q.vote) terms.push("data->>'vote'="+bind(q.vote))
     if(q.uf) {
       const uf=bind(q.uf)
-      terms.push(`((kind='politician' and data->>'uf'=${uf}) or owner in (select p.id from records p where p.kind='politician' and p.data->>'uf'=${uf}))`)
+      terms.push(q.kind==='ballot'?"data->>'uf'="+uf:`((kind='politician' and data->>'uf'=${uf}) or owner in (select p.id from records p where p.kind='politician' and p.data->>'uf'=${uf}))`)
     }
     if(q.party) {
       const party=bind(q.party)
-      terms.push(`((kind='politician' and data->>'party'=${party}) or owner in (select p.id from records p where p.kind='politician' and p.data->>'party'=${party}))`)
+      terms.push(q.kind==='ballot'?"data->>'party'="+party:`((kind='politician' and data->>'party'=${party}) or owner in (select p.id from records p where p.kind='politician' and p.data->>'party'=${party}))`)
     }
     if(q.from) terms.push('date>='+bind(q.from))
     if(q.to) terms.push('date<='+bind(q.to))
@@ -103,7 +106,7 @@ export async function app(db:pg.Pool) {
   })
   api.get('/api/records/:kind/:id',async(req,reply)=>{
     const p=z.object({kind:kinds,id}).parse(req.params)
-    const result=await db.query('select '+fields+' from records where kind=$1 and id=$2',[p.kind,p.id])
+    const result=await db.query('select '+fields+" from records where kind=$1 and (id=$2 or ($1='proposal' and data->>'proposalId'=$2)) order by (id=$2) desc,id limit 1",[p.kind,p.id])
     return result.rows[0]??reply.code(404).send({error:'Registro ausente no índice'})
   })
   api.get('/api/history/:owner',async(req)=>{

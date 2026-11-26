@@ -137,14 +137,16 @@ function normalize(task: Task, row: Row, url: string, index: number): PublicReco
     case 'vote':
       return { ...base, id: required(row.id), date: dateOf(row.data), title: text(row.proposicaoObjeto) ?? text(row.descricao) ?? required(row.id),
         sourceUrl: official(row.uri) ?? url, data: { object: text(row.proposicaoObjeto), description: text(row.descricao),
-          body: text(row.siglaOrgao), result: row.aprovacao ?? null, proposalUrl: official(row.uriProposicaoObjeto) } }
+          body: text(row.siglaOrgao), result: row.aprovacao ?? null, proposalUrl: official(row.uriProposicaoObjeto),
+          eventUrl:official(row.uriEvento),bodyUrl:official(row.uriOrgao),registered:text(row.dataHoraRegistro) } }
     case 'ballot': {
       const deputy = object(row.deputado_)
       const owner = required(deputy.id)
       const vote = required(row.tipoVoto)
       const registered = text(row.dataRegistroVoto)
       return { ...base, id: [task.owner, owner, registered ?? vote].join(':'), owner, title: vote,
-        date: dateOf(registered), data: { voteId: task.owner, vote, deputy: required(deputy.nome), registered } }
+        date: dateOf(registered), data: { voteId: task.owner, vote, deputy: required(deputy.nome), registered,
+          party: text(deputy.siglaPartido),uf:text(deputy.siglaUf),photo:official(deputy.urlFoto) } }
     }
   }
 }
@@ -228,6 +230,16 @@ async function readPage(url: URL) {
       await delay(Math.max(1500 * 2 ** attempt, remote?.retryAfter ?? 0))
     }
   }
+}
+
+// The enrichment registry builds complete resource paths from typed identifiers.
+// Validate them again at the transport boundary, before resolving any hostname.
+export function readInstitutionalResource(url: URL) {
+  const route = /^\/api\/v2\/(?:votacoes\/\d{1,14}-\d{1,10}(?:\/(?:votos|orientacoes))?|proposicoes\/[1-9]\d{0,13}(?:\/(?:autores|tramitacoes))?|eventos\/[1-9]\d{0,13}(?:\/pauta)?|orgaos\/[1-9]\d{0,13})$/
+  if (url.origin !== origin || url.username || url.password || url.search || url.hash || !route.test(url.pathname)) {
+    throw Error('Recurso institucional inválido')
+  }
+  return readPage(new URL(url.href))
 }
 
 export async function* collect(task: Task, startPage = 1) {

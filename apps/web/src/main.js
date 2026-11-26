@@ -234,6 +234,8 @@ async function profile(path,id,tab,params,signal) {
       el('dt',{},'Última verificação'),el('dd',{},brDate(person.verified_at))))
   } else if(tab==='fontes'){
     content.append(sectionTitle('Fonte institucional'),el('p',{},'Dados Abertos da Câmara dos Deputados · '+brDate(person.verified_at)),detail(person))
+    const {createExplorer}=await import('./explorer.js')
+    if(!signal.aborted)content.append(await createExplorer({kind:'politician',id,signal}))
   } else if(tab==='vinculos'){
     content.append(sectionTitle('Vínculo institucional',detail(person)))
     await drawAffiliation(content,person,signal)
@@ -257,10 +259,20 @@ async function record(kind,id,signal) {
   if(item.amount!=null)dl.append(el('dt',{},'Valor líquido'),el('dd',{},currency(item.amount)))
   dl.append(el('dt',{},'Data'),el('dd',{},brDate(item.date)))
   main.replaceChildren(intro(item.title,singular[kind]||'Registro',detail(item)),panel('Registro oficial',dl))
+  if(kind==='proposal'&&item.data.detailPending){
+    const status=el('p',{class:'notice',role:'status'},'Referência institucional identificada. A ficha complementar ainda está pendente.')
+    main.append(status,button('Solicitar ficha complementar',async()=>{
+      const response=await fetch('/api/enrichment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind,id}),signal})
+      status.textContent=response.ok?'Coleta complementar solicitada. Consulte novamente após o processamento do Scout.':'Não foi possível solicitar a coleta.'
+    }))
+  }
   if(item.owner&&['ballot','expense','proposal'].includes(kind)) main.append(link('Consultar perfil relacionado','#politician/'+encodeURIComponent(item.owner),'button'))
   if(kind==='ballot'&&item.data?.voteId) main.append(link('Consultar votação','#registro/vote/'+encodeURIComponent(item.data.voteId),'button'))
   if(kind==='vote') main.append(el('p',{class:'notice'},'O resultado se refere ao objeto descrito pela Câmara. Esse objeto pode ser um requerimento, destaque, emenda ou outro procedimento.'),link('Consultar votos nominais indexados','#registros/ballot?'+new URLSearchParams({voteId:id}),'button'))
   if(kind==='vote'&&item.data?.proposalUrl)main.append(sourceLink('Consultar proposição na Câmara',item.data.proposalUrl))
+  const {createExplorer}=await import('./explorer.js')
+  const explorer=await createExplorer({kind,id,signal})
+  if(!signal.aborted)main.append(explorer)
 }
 const pages={
   apoiar:['Apoiar o projeto','O ObservaBR é independente. Nesta etapa, contribuições podem ser feitas com revisão de código, documentação e indicação de fontes oficiais, conforme CONTRIBUTING.md no repositório. O financiamento do projeto será documentado em etapa futura.'],
@@ -276,7 +288,7 @@ async function render(){
   const signal=routeController.signal
   const [path,query]=route()
   const params=new URLSearchParams(query)
-  const [page,rawId,rawTab]=path.split('/')
+  const [page,rawId,rawTab,view]=path.split('/')
   search.q.value=params.get('q')||''
   const current=page==='politician'?'registros/politician':page==='registro'?'registros/'+rawId:path
   for(const item of nav.children){if(item.hash==='#'+current)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current')}
@@ -287,7 +299,20 @@ async function render(){
     if(page==='panorama') await dashboard(signal)
     else if(page==='pesquisa'||(page==='registros'&&Object.hasOwn(names,rawId))) await listings(path,rawId,params,signal)
     else if(page==='politician'&&rawId) await profile(path,decodeURIComponent(rawId),rawTab||'geral',params,signal)
+    else if(page==='registro'&&rawId==='vote'&&rawTab){
+      const {renderVote}=await import('./vote.js')
+      if(!signal.aborted)await renderVote({main,id:decodeURIComponent(rawTab),view:view||'contexto',params,signal})
+    }
     else if(page==='registro'&&Object.hasOwn(names,rawId)&&rawTab) await record(rawId,decodeURIComponent(rawTab),signal)
+    else if(page==='entidade'&&['body','event'].includes(rawId)&&rawTab){
+      const data=await read('/api/entities/'+rawId+'/'+encodeURIComponent(rawTab),signal)
+      if(signal.aborted)return
+      const source=data.payload.dados
+      main.replaceChildren(intro(source.nome||source.descricaoTipo||'Documento institucional',source.descricao||'Fonte institucional da Câmara'),sourceLink('Fonte institucional',data.api_url))
+      const {createExplorer}=await import('./explorer.js')
+      const explorer=await createExplorer({kind:rawId,id:decodeURIComponent(rawTab),signal})
+      if(!signal.aborted)main.append(explorer)
+    }
     else if(page==='fontes'){
       const summary=await read('/api/summary',signal)
       if(signal.aborted)return

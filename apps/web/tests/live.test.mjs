@@ -34,6 +34,6 @@ test('navegação sobre índice real, histórico financeiro e voto nominal', {sk
   await page.goto(new URL('/#registro/vote/'+encodeURIComponent(voteId),base).href)
   await page.getByRole('link',{name:'Consultar votos nominais indexados'}).click()
   await page.getByRole('button',{name:'Ver fonte original'}).first().waitFor()
-  assert.ok(page.url().includes('voteId='+voteId))
+  assert.ok(page.url().includes('/vote/'+encodeURIComponent(voteId)+'/votos'))
   assert.deepEqual(errors,[])
 })

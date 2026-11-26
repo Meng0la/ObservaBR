@@ -2,6 +2,7 @@ import {setTimeout as sleep} from 'node:timers/promises'
 import {database,transaction} from '../../packages/database/index.ts'
 import {collect} from '../../packages/collectors/camara/index.ts'
 import {enqueue,jobKey,persist,type Task} from '../../packages/scout/store.ts'
+import {runNextEnrichment} from '../../packages/scout/enrichment.ts'
 
 const pool=database()
 const db=await pool.connect()
@@ -13,6 +14,13 @@ try {
   if(!lock.rows[0].acquired) throw new Error('Outro Scout está consumindo a fila')
   await db.query("update collection_jobs set status='queued' where status='running'")
   do {
+    try {
+      if(await runNextEnrichment(db)) {
+        if(process.argv.includes('--once')||process.argv.includes('--enrichment-once'))break
+        continue
+      }
+    } catch(error) { console.error(error instanceof Error?error.message:'Falha no enriquecimento') }
+    if(process.argv.includes('--enrichment-once'))break
     const now=new Date()
     const year=Number(process.env.COLLECTION_YEAR||now.getUTCFullYear())
     if(!Number.isInteger(year)||year<2008||year>now.getUTCFullYear()) throw new Error('COLLECTION_YEAR inválido')

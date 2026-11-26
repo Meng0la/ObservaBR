@@ -9,3 +9,6 @@ Antes de operação pública, verificar TLS, cabeçalhos no proxy, isolamento de
 
 ## Pendências identificadas na Fase 01
 Fila com prioridade fixa pode atrasar tipos de coleta. O limite de pedidos HTTP por instância exige orçamento global antes de exposição pública. Falhas de identidade documental podem interromper páginas. Backups e bruto exigem política de retenção e restauração testada. O esquema privado não possui cadastro nacional completo nem associação judicial homologada. Validar resolução e restrições de saída do proxy configurado pelo operador. CI e scanners configurados requerem execução verificável no ambiente de publicação.
+
+## API Explorer
+A API não recebe URLs externas para consulta. O visitante solicita apenas entidades previamente indexadas. O Scout valida recurso, ID, domínio e IP no transporte. Respostas têm limite de 6 MiB por chamada e o Explorer limita a seleção publicada a 8 MiB e 30 documentos. O bruto é restrito ao coletor. A projeção pública sinaliza supressões e a árvore JSON usa texto DOM com limites de complexidade. Hash original e exportação formatada são identificados separadamente. Autorização de novos tipos de fonte depende de revisão da política de publicação.

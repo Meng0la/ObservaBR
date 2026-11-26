@@ -13,3 +13,6 @@ A contagem por UF corresponde à representação dos deputados indexados. A loca
 
 ## Auditoria da Fase 01
 O banco preservado contém recortes oficiais, com coleta de despesas interrompida na página 2 e tarefas nominais pendentes. Consulte PROJECT_STATE.md para as contagens observadas. A contagem de proposições representa registros por autor no índice e o summary deduplica proposalId. A verificação desta fase usou documentos persistidos e consultas locais. Homologações de fontes adicionais permanecem pendentes.
+
+## Enriquecimento legislativo
+O caso 2520670-66 foi enriquecido a partir de dez respostas oficiais complementares. A API Explorer apresenta os registros interpretados, as respostas publicáveis e os metadados. Votos, orientações, autoria, tramitação, sessão, pauta, órgão e fichas de proposições foram relacionados. O diagnóstico e os limites estão em VOTE_AUDIT.md e ENRICHMENT_SOURCES.md. O enriquecimento de outras votações é progressivo e acionado pela fila. O índice ainda contém votações sem contexto complementar.

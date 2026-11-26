@@ -18,3 +18,5 @@ As bibliotecas usam imports dinâmicos. Nenhuma substituição de dependência f
 CSS transitions indicam hover e foco. Web Animations API anima navegação e entrada sequencial em grupos, com 160–180 ms e pequenos atrasos. Documentos possuem feedback discreto. prefers-reduced-motion desativa os movimentos.
 Foco visível, skip link, navegação contextual, labels e tabelas com cabeçalhos semânticos integram os componentes. Containers de tabela podem rolar horizontalmente e receber foco. A página completa deve caber no viewport.
 A validação e seus limites constam em VISUAL_AUDIT.md.
+## Votação documental e API Explorer
+A votação usa navegação contextual, placar proclamado com denominador explícito, categorias nominais separadas e tabelas de autoria, orientações e tramitação. O Explorer tem abas acessíveis e árvore JSON com limites, controles de cópia/exportação e apresentação explícita de supressões. Os novos componentes usam os tokens existentes e carregamento sob demanda. Os rótulos descrevem a condição documental da fonte, sem classificação de posicionamentos políticos.
