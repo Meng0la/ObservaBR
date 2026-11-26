@@ -15,3 +15,6 @@ A coleta de despesas foi interrompida na segunda página. Consulte docs/PROJECT_
 
 Leia docs/PROJECT_STATE.md, docs/DATA_SOURCES.md, docs/THREAT_MODEL.md e DESIGN.md antes de contribuir. Licença MIT para o código próprio. As fontes conservam suas condições de reutilização.
 
+
+## Interface da Fase 02
+O panorama editorial e as consultas documentais compartilham tokens OKLCH, temas claro e escuro e três fontes locais. A rota #sistema demonstra os componentes. O diretório inclui filtros reais de partido e ordenação. Consulte docs/DESIGN_REFERENCES.md e docs/PHASE02_VALIDATION.md para decisões e validação. As limitações da coleta permanecem documentadas em docs/PROJECT_STATE.md.

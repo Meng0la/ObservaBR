@@ -141,7 +141,7 @@ function filters(kind,params,path,parties=[]) {
   select.value=params.get('uf')||''
   form.append(el('label',{},'Termo',el('input',{name:'q',type:'search',maxlength:120,value:params.get('q')||''})),el('label',{},'UF do representante',select))
   if(kind==='politician'&&parties.length) {
-    const party=el('select',{name:'party'},el('option',{value:''},'Todos'),...parties.map(value=>el('option',{value},value)))
+    const party=el('select',{name:'party','aria-label':'Partido'},el('option',{value:''},'Todos'),...parties.map(value=>el('option',{value},value)))
     party.value=params.get('party')||''
     form.append(el('label',{},'Partido',party))
   }
@@ -149,7 +149,7 @@ function filters(kind,params,path,parties=[]) {
     el('label',{},'Até',el('input',{name:'to',type:'date',value:params.get('to')||''})))
   const options=kind==='politician'?[['name-asc','Nome A–Z'],['name-desc','Nome Z–A']]:[['date-desc','Mais recentes'],['date-asc','Mais antigos'],['name-asc','Título A–Z']]
   if(kind==='expense')options.push(['amount-desc','Maior valor'],['amount-asc','Menor valor'])
-  const order=el('select',{name:'sort'},el('option',{value:''},'Padrão'),...options.map(([value,label])=>el('option',{value},label)))
+  const order=el('select',{name:'sort','aria-label':'Ordenação'},el('option',{value:''},'Padrão'),...options.map(([value,label])=>el('option',{value},label)))
   order.value=params.get('sort')||''
   form.append(el('label',{},'Ordenação',order),el('button',{type:'submit'},'Aplicar'))
   form.onsubmit=e=>{

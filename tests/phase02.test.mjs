@@ -105,9 +105,15 @@ test('Fase 02 · temas, resoluções, contraste de texto, capturas e teclado', {
       const height = width === 390 ? 844 : 960
       await page.setViewportSize({width, height})
       for (const [name, hash] of routes) {
+        // Pace the real API matrix within the application's public request budget.
+        await page.waitForTimeout(2200)
         await openRoute(page, hash)
         if (name === 'home') {
-          await page.locator('.maplibregl-canvas').waitFor()
+          await page.locator('.maplibregl-canvas').waitFor().catch(async error=>{
+            await page.screenshot({path:join(output,'map-failure.png'),fullPage:true})
+            console.error(JSON.stringify({theme,width,errors,content:await page.locator('main').innerText()}))
+            throw error
+          })
           await page.waitForTimeout(600)
         }
         const screenshot = name + '-' + width + '-' + theme + '.png'
@@ -157,7 +163,10 @@ test('Fase 02 · temas, resoluções, contraste de texto, capturas e teclado', {
   await page.waitForURL(url => new URLSearchParams(url.hash.split('?')[1]).get('uf') === selected)
 
   await openRoute(page, 'registros/politician')
-  await page.getByLabel('Partido', {exact: true}).selectOption('MDB')
+  await page.getByLabel('Partido', {exact: true}).selectOption('MDB').catch(async error=>{
+    console.error(JSON.stringify({url:page.url(),errors,content:await page.locator('main').innerText()}))
+    throw error
+  })
   await page.getByLabel('Ordenação').selectOption('name-desc')
   const updated = page.waitForResponse(response => {
     const url = new URL(response.url())

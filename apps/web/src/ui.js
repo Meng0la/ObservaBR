@@ -84,5 +84,4 @@ export function evidence(row) {
   dialog.classList.add('evidence-panel')
   dialog.showModal()
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches)dialog.animate([{opacity:0,transform:'translateX(12px)'},{opacity:1,transform:'none'}],{duration:180,easing:'ease-out'})
-  if(!matchMedia('(prefers-reduced-motion: reduce)').matches)dialog.animate([{opacity:0,transform:'translateX(12px)'},{opacity:1,transform:'none'}],{duration:180,easing:'ease-out'})
 }

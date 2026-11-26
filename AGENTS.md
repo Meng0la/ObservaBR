@@ -15,7 +15,7 @@ Segredos ficam exclusivamente no backend e fora do versionamento. Revise privil�
 Cada registro publicado exige origem exata, identificador, data de coleta, campo, hash e versão do coletor. Preserve valores ausentes e significado do voto. Coincidência nominal nunca comprova identidade, investigação ou acusação. Separe alegação, investigação, decisão, condenação e absolvição.
 
 ## Visual
-Antes de editar frontend, leia DESIGN.md e docs/DESIGN_SYSTEM.md. A Fase 02 definirá identidade editorial e investigativa. Não introduza Inter ou Roboto como fonte principal, gradientes roxos decorativos, glassmorphism, emojis, arredondamento indiscriminado, dashboards genéricos, vazios sem função ou terminal hacker. Alterações visuais significativas exigem navegador, screenshots e responsividade.
+Antes de editar frontend, leia DESIGN.md e docs/DESIGN_SYSTEM.md. A identidade editorial e investigativa da Fase 02 está definida em DESIGN.md. Não introduza Inter ou Roboto como fonte principal, gradientes roxos decorativos, glassmorphism, emojis, arredondamento indiscriminado, dashboards genéricos, vazios sem função ou terminal hacker. Alterações visuais significativas exigem navegador, screenshots e responsividade.
 
 ## Testes e documentação
 Funcionalidade concluída exige implementação e validação pelos pontos reais de entrada. Execute testes adequados, typecheck e build. Fixtures pertencem exclusivamente aos testes. Registre falhas, testes ignorados e limitações. Documente mudanças de contrato, schema, cobertura e decisões. Planejamento deve ser identificado explicitamente. Não avance de fase ou execute deploy sem autorização.

@@ -10,7 +10,7 @@
 O README discrimina a entrega testada. A habilitação de um conector depende de amostra oficial, contrato de dados, política de acesso e teste de atualização.
 
 ## Sequência aprovada após auditoria
-Fase 01 estabelece auditoria e governança. Fase 02 trata identidade visual e design system e aguarda autorização.
+Fase 01 estabelece auditoria e governança. Fase 02 trata identidade visual e design system e foi autorizada nesta tarefa.
 O escopo futuro inclui cadastro nacional, Scout, despesas, votações, proposições, emendas, patrimônio e financiamento eleitoral, contratos, licitações, obras, programas, histórico judicial e administrativo, investigações oficiais, condenações e absolvições, grafos, RAG, pesquisa global, transparência financeira do projeto e apoio/financiamento.
 Cada módulo depende de fonte homologada, identidade institucional, evidência individual, testes e cobertura explícita. Informações judiciais exigem vínculo comprovado da identidade, contexto processual e atualização de decisões.
 
