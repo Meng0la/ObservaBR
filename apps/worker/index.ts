@@ -21,6 +21,10 @@ try {
       }
     } catch(error) { console.error(error instanceof Error?error.message:'Falha no enriquecimento') }
     if(process.argv.includes('--enrichment-once'))break
+    if(process.argv.includes('--enrichment-only')){
+      await sleep(3000)
+      continue
+    }
     const now=new Date()
     const year=Number(process.env.COLLECTION_YEAR||now.getUTCFullYear())
     if(!Number.isInteger(year)||year<2008||year>now.getUTCFullYear()) throw new Error('COLLECTION_YEAR inválido')

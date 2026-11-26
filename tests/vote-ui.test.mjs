@@ -10,6 +10,34 @@ const base = process.env.OBSERVABR_TEST_URL
 const voteId = '2520670-66'
 const official = 'https://dadosabertos.camara.leg.br/api/v2/votacoes/' + voteId
 
+test('fila mostra estado em português, atualiza o contexto e cancela consultas ao sair', {skip:!base,timeout:25000},async t=>{
+  const browser=await chromium.launch({executablePath:process.env.CHROME_BIN||undefined})
+  t.after(()=>browser.close())
+  const page=await browser.newPage({viewport:{width:390,height:844}})
+  const fixtureId='123-45'
+  const pendingId='678-9'
+  const calls=new Map()
+  await page.route('**/api/votes/*',async route=>{
+    const id=new URL(route.request().url()).pathname.split('/').pop()
+    calls.set(id,(calls.get(id)||0)+1)
+    const done=id===fixtureId&&calls.get(id)>1
+    const record={kind:'vote',id,title:'Fixture de teste isolado',data:{}}
+    const context=done?{title:'Contexto de teste concluído',body:{},authors:[],issues:[],sources:[],date:null}:null
+    await route.fulfill({json:{record,context,job:{status:done?'done':'queued'},nominalTotal:0,ballotCounts:[],partyCounts:[],ufs:[]}})
+  })
+  await page.goto(new URL('/#registro/vote/'+fixtureId,base).href)
+  await page.getByRole('status').filter({hasText:'Na fila'}).waitFor()
+  assert.equal(await page.getByRole('button',{name:'Solicitar enriquecimento',exact:true}).isDisabled(),true)
+  await page.getByRole('heading',{name:'Contexto de teste concluído',exact:true}).waitFor({timeout:8000})
+  assert.equal(calls.get(fixtureId),2)
+  await page.goto(new URL('/#registro/vote/'+pendingId,base).href)
+  await page.getByRole('status').filter({hasText:'Na fila'}).waitFor()
+  await page.goto(new URL('/#metodologia',base).href)
+  await page.getByRole('heading',{name:'Metodologia',exact:true}).waitFor()
+  await page.waitForTimeout(3400)
+  assert.equal(calls.get(pendingId),1)
+})
+
 function privateKeys(value) {
   if (!value || typeof value !== 'object') return []
   return Object.entries(value).flatMap(([key, child]) => {

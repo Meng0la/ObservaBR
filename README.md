@@ -27,3 +27,4 @@ Com DATABASE_URL do coletor, node scripts/backfill-evidence.ts disponibiliza as 
 O processo npm run worker consome pedidos complementares feitos na interface. node scripts/enrich.ts vote ID_DA_VOTACAO permite um processamento administrativo delimitado com o mesmo lock e cache.
 
 Consulte docs/architecture/0002-enrichment.md, docs/API_EXPLORER.md, docs/ENRICHMENT_VALIDATION.md e docs/PROJECT_STATE.md para contratos, configuração, testes e cobertura.
+Para atender apenas as solicitações complementares da interface, mantenha node apps/worker/index.ts --enrichment-only em execução com a credencial do coletor. A aba Contexto acompanha solicitações pendentes automaticamente. Os modos do Scout compartilham o mesmo lock e devem usar um único consumidor.

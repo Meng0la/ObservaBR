@@ -39,7 +39,7 @@ Para atualizar uma instalação existente, aplique somente a migration 003 pende
 - node scripts/enrich.ts vote ID processa uma entidade indexada com lock e cache, usando credencial do coletor.
 - node scripts/backfill-evidence.ts projeta respostas já armazenadas para o Explorer e preserva datas de origem.
 - node scripts/backfill-vote-fields.ts recupera os campos descartados da listagem, sem novo download.
-Os dois backfills foram executados nesta etapa. Repetições são idempotentes. A API de validação atual está em http://127.0.0.1:3003. O Scout precisa permanecer em execução para consumir solicitações da interface.
+Os dois backfills foram executados nesta etapa. Repetições são idempotentes. A API de validação atual está em http://127.0.0.1:3001. O Scout precisa permanecer em execução para consumir solicitações da interface.
 
 ## Testes e resultados
 13 testes locais aprovados, com dois contratos externos ignorados no comando padrão. A integração usa exclusivamente observabr_test.
@@ -53,3 +53,11 @@ Complementos de outras votações são progressivos. Até quatro fichas de propo
 A API Explorer atual atende JSON. Outros formatos e novas instituições precisam de política e contrato próprios. O limite de solicitações públicas é por IP e por instância. Uma operação pública com réplicas exige orçamento global da fila.
 A consulta de navegação ao documento codteor=3069283 recebeu HTTP 429. A identificação do caso foi comprovada pelas demais fontes oficiais. Nenhum bloqueio foi contornado.
 Próximo checkpoint é conferir o commit enviado no GitHub e aguardar a definição da próxima tarefa. Novos módulos exigem instrução própria.
+
+## Correção operacional da porta 3001
+A captura do usuário mostrou 404 em /api/votes/2589598-15. A votação já existia no banco, mas a instância antiga na porta 3001 ainda não registrava a rota complementar. A instância foi reiniciada com a API atual na mesma porta. O endpoint e a página foram verificados no Chrome sem erros HTTP da API.
+O contexto dessa votação foi coletado por scripts/enrich.ts usando os recursos oficiais homologados, com estado done. O smoke HTTP passou a exigir a rota complementar, inclusive em banco vazio, para detectar uma API antiga. Captura de verificação em .tools/enrichment/correcao-3001.png.
+
+## Fila de enriquecimento em operação local
+A tela queued indicava uma solicitação persistida sem consumidor ativo. O Scout foi iniciado em modo --enrichment-only, que atende complementos e permanece aguardando novas solicitações. O trabalho 1703883-83 chegou ao estado done. Esse modo utiliza o mesmo lock, cache e tratamento de falhas do worker.
+A interface traduz o estado para português, desabilita novo pedido enquanto a solicitação está pendente e consulta o andamento a cada três segundos na aba Contexto. Ao sair da página, cancela a atualização. O processamento exige que o Scout continue ativo. Comando local com DATABASE_URL de escrita e configuração de rede apropriada: node apps/worker/index.ts --enrichment-only.

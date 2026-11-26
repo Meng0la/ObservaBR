@@ -1,4 +1,4 @@
-import {el,link,button,empty,read,brDate,digits,evidence,sourceLink} from './ui.js'
+import {el,link,button,empty,read,brDate,digits,evidence,sourceLink,statusLabel} from './ui.js'
 import './vote.css'
 
 const tabs={contexto:'Contexto',votos:'Votos nominais',partidos:'Partidos',orientacoes:'Orientações de bancada',
@@ -94,11 +94,36 @@ export async function renderVote({main,id,view='contexto',params,signal}){
  main.replaceChildren(heading,nav,body)
  if(!context){
   body.append(empty('O detalhe contextual ainda não foi indexado. O registro e sua fonte permanecem disponíveis.'),rowSource(value.record))
-  const status=el('p',{role:'status'},value.job?'Enriquecimento · '+value.job.status:'Coleta complementar disponível sob demanda.')
-  body.append(status,button('Solicitar enriquecimento',async()=>{
-   const response=await fetch('/api/enrichment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'vote',id}),signal})
-   status.textContent=response.ok?'Enriquecimento solicitado. O Scout processará a fila.':'Não foi possível solicitar a coleta complementar.'
-  }),button('Atualizar contexto',()=>renderVote({main,id,view,params,signal})))
+  const status=el('p',{role:'status'},value.job?'Enriquecimento · '+(statusLabel[value.job.status]||value.job.status):'Coleta complementar disponível sob demanda.')
+  let timer
+  const cancel=()=>clearTimeout(timer)
+  const refresh=()=>{
+   cancel()
+   signal.removeEventListener('abort',cancel)
+   return renderVote({main,id,view,params,signal}).catch(()=>{
+    if(!signal.aborted)status.textContent='Andamento indisponível. Use Atualizar contexto para consultar novamente.'
+   })
+  }
+  const watch=()=>{
+   if(view!=='contexto'||signal.aborted)return
+   clearTimeout(timer)
+   timer=setTimeout(refresh,3000)
+  }
+  signal.addEventListener('abort',cancel,{once:true})
+  const request=button('Solicitar enriquecimento',async()=>{
+   request.disabled=true
+   try{
+    const response=await fetch('/api/enrichment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'vote',id}),signal})
+    if(!response.ok)throw Error('Solicitação recusada')
+    status.textContent='Enriquecimento · Na fila. Aguardando processamento pelo Scout.'
+    watch()
+   }catch{
+    if(!signal.aborted){status.textContent='Não foi possível solicitar a coleta complementar.';request.disabled=false}
+   }
+  })
+  request.disabled=['queued','running'].includes(value.job?.status)
+  if(request.disabled)watch()
+  body.append(status,request,button('Atualizar contexto',refresh))
   if(view!=='api'&&view!=='votos')return
  }
  if(view==='votos'){body.append(await ballots(id,params,signal,value));return}

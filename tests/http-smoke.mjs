@@ -14,6 +14,7 @@ async function read(path, expectedStatus = 200) {
 const health = await (await read('/api/health')).json()
 assert.equal(health.status, 'ok')
 const summary = await (await read('/api/summary')).json()
+await read('/api/votes/invalid', 400)
 assert.ok(Number.isInteger(summary.counts.politician))
 assert.ok(Array.isArray(summary.jobs))
 assert.ok(Array.isArray(summary.states))
