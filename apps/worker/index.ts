@@ -1,16 +1,19 @@
 import {setTimeout as sleep} from 'node:timers/promises'
-import {database,transaction} from '../../packages/database/index.ts'
-import {collect} from '../../packages/collectors/camara/index.ts'
-import {enqueue,jobKey,persist,type Task} from '../../packages/scout/store.ts'
+import {database} from '../../packages/database/index.ts'
+import {enqueue} from '../../packages/scout/store.ts'
+import {generalBatch,validateBatch,type BatchConfig} from '../../packages/scout/general-batch.ts'
+import {backfillYears} from '../../packages/scout/backfill.ts'
 import {runNextEnrichment} from '../../packages/scout/enrichment.ts'
 
 const batch=process.argv.includes('--enrichment-batch')
 const maxJobs=Number(process.env.SCOUT_MAX_JOBS||3)
 const maxSeconds=Number(process.env.SCOUT_MAX_SECONDS||180)
-if(batch&&(!Number.isInteger(maxJobs)||maxJobs<1||maxJobs>10||!Number.isInteger(maxSeconds)||maxSeconds<1||maxSeconds>600)) {
+if(!Number.isInteger(maxJobs)||maxJobs<1||maxJobs>10||!Number.isInteger(maxSeconds)||maxSeconds<1||maxSeconds>600) {
   throw new Error('Limites inválidos para o lote do Scout')
 }
 const deadline=Date.now()+maxSeconds*1000
+const databaseTarget=new URL(process.env.DATABASE_URL||'')
+if(databaseTarget.hostname.endsWith('.pooler.supabase.com')&&databaseTarget.port!=='5432')throw Error('Scout exige Session pooler na porta 5432')
 let processed=0
 const pool=database()
 const db=await pool.connect()
@@ -41,32 +44,21 @@ try {
     const now=new Date()
     const year=Number(process.env.COLLECTION_YEAR||now.getUTCFullYear())
     if(!Number.isInteger(year)||year<2008||year>now.getUTCFullYear()) throw new Error('COLLECTION_YEAR inválido')
-    await enqueue(db,{kind:'politician',year},1)
-    await enqueue(db,{kind:'vote',year,month:year===now.getUTCFullYear()?now.getUTCMonth()+1:12},2)
-    await transaction(db,async()=>{
-      const requests=await db.query("select id,name from collection_requests where status='queued' order by requested_at limit 5 for update")
-      for(const request of requests.rows) {
-        const task:Task={kind:'politician',name:request.name,year}
-        await enqueue(db,task,0)
-        await db.query("update collection_requests r set status=j.status,job_key=j.key from collection_jobs j where r.id=$1 and j.key=$2",[request.id,jobKey(task)])
-        await db.query("update collection_requests set status='running' where id=$1 and status='queued'",[request.id])
-      }
-    })
-    const next=await db.query("select * from collection_jobs where due_at<=now() order by priority,due_at,key limit 1")
-    const job=next.rows[0]
-    if(!job) {await sleep(3000);continue}
-    await db.query("update collection_jobs set status='running',updated_at=now() where key=$1",[job.key])
-    try {
-      for await(const page of collect(job.task,job.page)) {
-        await persist(db,job.key,job.task,page)
-        if(stop) break
-      }
-      if(stop) break
-    } catch(e) {
-      const detail=e instanceof Error?e.message.slice(0,240):'falha de coleta'
-      console.error(JSON.stringify({kind:job.kind,page:job.page,error:detail}))
-      await db.query("update collection_jobs set status='failed',updated_at=now(),error=$2,due_at=now()+interval '30 minutes' where key=$1",[job.key,detail])
+    const config:BatchConfig={kinds:['politician','expense','proposal','vote','ballot'],year,
+      years:process.env.SCOUT_COLLECTION_YEARS?process.env.SCOUT_COLLECTION_YEARS.split(',').map(Number):process.env.COLLECTION_YEAR?[year]:backfillYears(),
+      maxTasks:maxJobs,maxSeconds,maxRequests:Number(process.env.SCOUT_MAX_REQUESTS||12),
+      maxBytes:Number(process.env.SCOUT_MAX_BYTES||3*1024*1024),databaseLimitBytes:Number(process.env.DATABASE_LIMIT_BYTES||500_000_000),
+      maxPending:Number(process.env.SCOUT_MAX_PENDING||10000)}
+    validateBatch(config)
+    const pending=(await db.query("select count(*)::int n from collection_jobs where status in ('queued','failed','running')")).rows[0].n
+    if(pending+2<=config.maxPending){
+      await enqueue(db,{kind:'politician',year},1)
+      await enqueue(db,{kind:'vote',year,month:year===now.getUTCFullYear()?now.getUTCMonth()+1:12},2)
     }
-    await db.query("update collection_requests r set status=j.status from collection_jobs j where r.job_key=j.key and j.key=$1",[job.key])
+    // The continuous entrypoint uses the same bounded/fair consumer as the manual CLI.
+    // The session lock is reentrant on this connection; generalBatch releases only its own acquisition.
+    const result=await generalBatch(db,config,undefined,()=>stop)
+    console.log(JSON.stringify(result))
+    if(!result.tasks||result.status==='capacity')await sleep(3000)
   } while(!stop && !process.argv.includes('--once'))
 } finally { db.release(true);await pool.end() }

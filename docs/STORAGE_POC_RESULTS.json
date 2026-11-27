@@ -1,0 +1,62 @@
+{
+  "at": "2026-11-26T16:37:18.459Z",
+  "source": "https://www.camara.leg.br/cotas/Ano-2025.csv.zip",
+  "sha256": "9a2a43eb0261b0311c48b1f6ed298c64c20107fa20b82a7375718bbd52bf60df",
+  "rows": 170615,
+  "bytes": {
+    "csv": 13046084,
+    "json": 21408053,
+    "parquet": 875620,
+    "postgres": 20316160
+  },
+  "checks": {
+    "csv": {
+      "n": "170615",
+      "total": "214501878.24"
+    },
+    "json": {
+      "n": "170615",
+      "total": "214501878.24"
+    },
+    "parquet": {
+      "n": "170615",
+      "total": "214501878.24"
+    },
+    "postgres": {
+      "n": "170615",
+      "total": "214501878.24"
+    }
+  },
+  "queryMilliseconds": {
+    "csv": [
+      139.8726999999999,
+      105.89030000000093,
+      108.12330000000111,
+      110.18279999999868,
+      133.27499999999964
+    ],
+    "json": [
+      346.1396000000004,
+      406.9408999999996,
+      287.4904999999999,
+      281.03290000000015,
+      315.0622000000003
+    ],
+    "parquet": [
+      13.808600000000297,
+      7.949500000000626,
+      7.958499999998821,
+      7.733799999999974,
+      8.02639999999883
+    ],
+    "postgres": [
+      72.28060000000005,
+      69.38470000000052,
+      67.0502000000015,
+      60.78160000000025,
+      110.82440000000133
+    ]
+  },
+  "scope": "Full annual file, public analytical projection: institutional owner, year, month, category, exact NUMERIC and source line. Does not replace the original evidence. No production records moved.",
+  "limitations": "One local machine, five repeated scans; not p95 or cloud performance. PostgreSQL includes primary-key index; files do not. Source lines are observation keys, not reconciled expense IDs."
+}

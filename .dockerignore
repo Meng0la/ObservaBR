@@ -10,3 +10,8 @@
 **/*.log
 coverage
 test-results
+backups
+postgres-data
+**/*.pass
+**/*.key
+**/*.pem

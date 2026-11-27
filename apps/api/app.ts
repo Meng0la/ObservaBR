@@ -7,6 +7,8 @@ import {existsSync} from 'node:fs'
 import type pg from 'pg'
 import {z,ZodError} from 'zod'
 import {enrichmentRoutes} from './enrichment.ts'
+import {recordId} from '../../packages/database/record-id.ts'
+import {coverage} from '../../packages/database/coverage.ts'
 
 const kinds=z.enum(['politician','expense','proposal','vote','ballot'])
 const id=z.string().trim().min(1).max(250)
@@ -27,7 +29,7 @@ const search=z.object({
 }).refine(v=>!v.from||!v.to||v.from<=v.to)
 const fields='kind,id,owner,title,to_char(date,\'YYYY-MM-DD\') as date,amount,data,source_url,api_url,sha256,collected_at,verified_at,field,collector_version'
 export function csv(rows:Record<string,unknown>[]) {
-  const keys=['kind','id','owner','title','date','amount','source_url','api_url','sha256','verified_at','field','collector_version']
+  const keys=['kind','id','owner','title','date','amount','source_url','api_url','sha256','collected_at','verified_at','field','collector_version']
   const cell=(v:unknown)=>{
     const s=v instanceof Date?v.toISOString():String(v??'')
     return '"'+(/^[\s]*[=+@-]/.test(s)?"'":'')+s.replaceAll('"','""')+'"'
@@ -35,6 +37,8 @@ export function csv(rows:Record<string,unknown>[]) {
   return [keys.join(','),...rows.map(r=>keys.map(k=>cell(r[k])).join(','))].join('\r\n')
 }
 export async function app(db:pg.Pool) {
+  const coverageCache=new Map<string,{expires:number,value:unknown}>()
+  let coverageActive=0
   const api=Fastify({bodyLimit:4096,disableRequestLogging:true,logger:{redact:['req.headers.authorization','req.headers.cookie']}})
   await api.register(helmet,{contentSecurityPolicy:{directives:{
     defaultSrc:["'self'"],scriptSrc:["'self'"],styleSrc:["'self'","'unsafe-inline'"],
@@ -51,6 +55,29 @@ export async function app(db:pg.Pool) {
     reply.code(status).send({error:status===429?'Limite de consultas atingido':'Solicitação indisponível'})
   })
   api.get('/api/health',async()=>{await db.query('select 1');return {status:'ok'}})
+  api.get('/api/coverage',{config:{rateLimit:{max:12,timeWindow:'1 minute'}}},async (request,reply)=>{
+    const query=z.object({kind:kinds.default('expense'),year:z.coerce.number().int().min(2008).max(new Date().getUTCFullYear()).default(new Date().getUTCFullYear()),
+      by:z.enum(['representative','source','category','period']).default('representative'),owner:z.string().regex(/^[1-9]\d{0,13}$/).optional(),
+      page:z.coerce.number().int().min(1).max(100).default(1)}).strict().parse(request.query)
+    const key=JSON.stringify(query),now=Date.now(),cached=coverageCache.get(key)
+    if(cached&&cached.expires>now){reply.header('Cache-Control','public, max-age=30');return cached.value}
+    if(cached)coverageCache.delete(key)
+    if(coverageActive>=2)return reply.code(503).header('Retry-After','1').send({error:'Consulta temporariamente ocupada'})
+    coverageActive++
+    let client:pg.PoolClient|undefined
+    try{
+      client=await db.connect()
+      await client.query('begin isolation level repeatable read read only')
+      await client.query("set local statement_timeout='5s'")
+      const result=await coverage(client,query)
+      await client.query('commit')
+      for(const [cacheKey,entry] of coverageCache)if(entry.expires<=now)coverageCache.delete(cacheKey)
+      if(coverageCache.size>=64)coverageCache.delete(coverageCache.keys().next().value!)
+      coverageCache.set(key,{expires:now+30_000,value:result})
+      reply.header('Cache-Control','public, max-age=30')
+      return result
+    }catch(error){if(client)await client.query('rollback');throw error}finally{client?.release();coverageActive--}
+  })
   api.get('/api/summary',async()=>{
     const [counts,states,jobs,coverage,parties]=await Promise.all([
       db.query(`select kind,count(distinct case when kind='proposal' then coalesce(data->>'proposalId',id) else id end)::int as n,
@@ -61,7 +88,7 @@ export async function app(db:pg.Pool) {
       db.query(`select kind,count(*) filter(where status='done')::int as done,
         count(*) filter(where status='failed')::int as failed,count(*) filter(where status='running')::int as running,
         count(*) filter(where status='queued')::int as queued,min((task->>'year')::int) as earliest,
-        max((task->>'year')::int) as latest,(array_agg(error order by updated_at desc) filter(where status='failed'))[1] as last_error
+        max((task->>'year')::int) as latest
         from collection_jobs group by kind order by kind`),
       db.query("select distinct data->>'party' as party from records where kind='politician' and trim(data->>'party')<>'' order by party")
     ])
@@ -106,6 +133,7 @@ export async function app(db:pg.Pool) {
   })
   api.get('/api/records/:kind/:id',async(req,reply)=>{
     const p=z.object({kind:kinds,id}).parse(req.params)
+    p.id=await recordId(db,p.kind,p.id)
     const result=await db.query('select '+fields+" from records where kind=$1 and (id=$2 or ($1='proposal' and data->>'proposalId'=$2)) order by (id=$2) desc,id limit 1",[p.kind,p.id])
     return result.rows[0]??reply.code(404).send({error:'Registro ausente no índice'})
   })

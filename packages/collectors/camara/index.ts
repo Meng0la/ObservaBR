@@ -11,6 +11,7 @@ export type Task = {
   name?: string
   year: number
   month?: number
+  roster?:'period'
 }
 
 export type PublicRecord = {
@@ -36,6 +37,7 @@ for (const [address, prefix] of [
 ] as const) blocked.addSubnet(address, prefix, 'ipv4')
 
 export function collectionUrl(task: Task, page = 1): URL {
+  if(task.roster!=null&&(task.roster!=='period'||task.kind!=='politician'))throw Error('Modo de cadastro inválido')
   if (!Number.isSafeInteger(page) || page < 1 || page > 100000) throw Error('Página inválida')
   if (!Number.isInteger(task.year) || task.year < 1900 || task.year > 2100) throw Error('Ano inválido')
   const paths = { politician: 'deputados', expense: 'deputados', proposal: 'proposicoes', vote: 'votacoes', ballot: 'votacoes' }
@@ -55,6 +57,10 @@ export function collectionUrl(task: Task, page = 1): URL {
   if (task.kind === 'politician' && task.name) {
     if (task.name.length > 120) throw Error('Nome muito longo')
     params.set('nome', task.name)
+  }
+  if(task.kind==='politician'&&task.roster==='period'){
+    params.set('dataInicio',`${task.year}-01-01`)
+    params.set('dataFim',`${task.year}-12-31`)
   }
   if (task.kind === 'vote') {
     const now = new Date()
@@ -110,7 +116,7 @@ function normalize(task: Task, row: Row, url: string, index: number): PublicReco
   switch (task.kind) {
     case 'politician':
       return { ...base, id: required(row.id), title: required(row.nome), sourceUrl: official(row.uri) ?? url,
-        data: { party: text(row.siglaPartido), uf: text(row.siglaUf), legislature: row.idLegislatura ?? null, photo: official(row.urlFoto) } }
+        data: { party: task.roster==='period'?null:text(row.siglaPartido), uf: text(row.siglaUf), legislature: row.idLegislatura ?? null, photo: official(row.urlFoto),rosterYear:task.roster==='period'?task.year:new Date().getUTCFullYear(),rosterMode:task.roster??'current' } }
     case 'expense': {
       const amount = money(row.valorLiquido)
       const company = typeof row.cnpjCpfFornecedor === 'string' && /^\d{14}$/.test(row.cnpjCpfFornecedor)
@@ -154,11 +160,36 @@ function normalize(task: Task, row: Row, url: string, index: number): PublicReco
 export function parsePage(raw: Buffer, task: Task, page: number, url: string) {
   const body = object(JSON.parse(raw.toString('utf8')))
   if (!Array.isArray(body.dados) || !Array.isArray(body.links)) throw Error('Envelope da Câmara inválido')
-  const records = body.dados.map((row, index) => normalize(task, object(row), url, index))
-  if (new Set(records.map(record => record.id)).size !== records.length) throw Error('Chaves ambíguas na página da Câmara')
+  const records:PublicRecord[]=[]
+  const observations:Array<{id:string,field:string}>=[]
+  const identities=new Map<string,string>()
+  const rawRows=new Set<string>()
+  let duplicates=0,representationVariants=0
+  const canonical=(v:unknown):unknown=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.keys(v).sort().map(k=>[k,canonical((v as Row)[k])]):v
+  for(const [index,value] of body.dados.entries()){
+    const row=object(value),record=normalize(task,row,url,index)
+    // Dated rosters may repeat the same institutional person with different parties.
+    // Keep every source position; never select one of these as current affiliation.
+    const identityRow=task.kind==='politician'&&task.roster==='period'?Object.fromEntries(Object.entries(row).filter(([key])=>key!=='siglaPartido')):row
+    const fingerprint=JSON.stringify(canonical(identityRow))
+    const rawFingerprint=JSON.stringify(canonical(row))
+    observations.push({id:record.id,field:record.field})
+    if(identities.has(record.id)){
+      if(identities.get(record.id)!==fingerprint)throw Error('Chaves ambíguas na página da Câmara')
+      if(rawRows.has(rawFingerprint))duplicates++;else representationVariants++
+    }else{identities.set(record.id,fingerprint);records.push(record)}
+    rawRows.add(rawFingerprint)
+  }
   const next = body.links.some(link => object(link).rel === 'next')
-  return { page, url, raw, records, next }
+  return { page, url, raw, records, next,observations,sourceRows:body.dados.length,duplicates,representationVariants }
 }
+
+export class CollectionBudgetExceeded extends Error {}
+let budget:{deadline:number,maxRequests:number,maxBytes:number,requests:number,bytes:number}|undefined
+export function configureCollectionBudget(config?:{deadline:number,maxRequests:number,maxBytes:number}) {
+  budget=config?{...config,requests:0,bytes:0}:undefined
+}
+export function collectionUsage(){return {requests:budget?.requests??0,bytes:budget?.bytes??0}}
 
 class RemoteFailure extends Error {
   readonly status: number
@@ -170,6 +201,8 @@ class RemoteFailure extends Error {
   }
 }
 async function download(url: URL): Promise<Buffer> {
+  if(budget&&(Date.now()>=budget.deadline||budget.requests>=budget.maxRequests))throw new CollectionBudgetExceeded('Orçamento da fonte atingido')
+  if(budget)budget.requests++
   // Proxy use is an operator decision. The proxy resolves the fixed institutional
   // hostname again, while TLS still validates that hostname inside the tunnel.
   const proxy = process.env.OBSERVABR_HTTPS_PROXY
@@ -180,7 +213,7 @@ async function download(url: URL): Promise<Buffer> {
   }
   return new Promise((resolve, reject) => {
     const req = request(url, {
-      family: 4, agent, signal: AbortSignal.timeout(30000),
+      family: 4, agent, signal: AbortSignal.timeout(Math.max(1,Math.min(30000,budget?budget.deadline-Date.now():30000))),
       headers: { Accept: 'application/json', 'User-Agent': 'ObservaBR/0.1 (dados publicos da Camara)' },
       lookup: proxy ? undefined : (host, _options, cb) => {
         lookup(host, { family: 4 }, (err, address) => {
@@ -205,6 +238,10 @@ async function download(url: URL): Promise<Buffer> {
       const chunks: Buffer[] = []
       res.on('data', (chunk: Buffer) => {
         size += chunk.length
+        if(budget){
+          budget.bytes+=chunk.length
+          if(budget.bytes>budget.maxBytes){res.destroy(new CollectionBudgetExceeded('Orçamento de bytes atingido'));return}
+        }
         if (size > byteLimit) res.destroy(Error('Documento excede o limite'))
         else chunks.push(chunk)
       })
@@ -220,14 +257,18 @@ let nextSlot = 0
 async function readPage(url: URL) {
   for (let attempt = 0; ; attempt++) {
     const slot = Math.max(Date.now(), nextSlot)
+    if(budget&&slot>=budget.deadline)throw new CollectionBudgetExceeded('Orçamento de duração atingido')
     nextSlot = slot + 1500
     await delay(Math.max(0, slot - Date.now()))
     try { return await download(url) } catch (error) {
+      if(error instanceof CollectionBudgetExceeded)throw error
       const remote = error instanceof RemoteFailure ? error : null
       if (remote?.retryAfter) nextSlot = Math.max(nextSlot, Date.now() + remote.retryAfter)
       if (attempt === 2 || (remote && ![429, 500, 502, 503, 504].includes(remote.status)) ||
           (remote && remote.retryAfter > 60000)) throw error
-      await delay(Math.max(1500 * 2 ** attempt, remote?.retryAfter ?? 0))
+      const pause=Math.max(1500 * 2 ** attempt+Math.random()*500,remote?.retryAfter??0)
+      if(budget&&Date.now()+pause>=budget.deadline)throw new CollectionBudgetExceeded('Retry excede o orçamento')
+      await delay(pause)
     }
   }
 }
@@ -242,11 +283,16 @@ export function readInstitutionalResource(url: URL) {
   return readPage(new URL(url.href))
 }
 
+export async function readCollectionPage(task:Task,page=1) {
+  const url=collectionUrl(task,page)
+  return {raw:await readPage(url),url:url.href,page}
+}
+
 export async function* collect(task: Task, startPage = 1) {
   for (let page = startPage; ; page++) {
-    const url = collectionUrl(task, page)
-    const result = parsePage(await readPage(url), task, page, url.href)
+    const source=await readCollectionPage(task,page)
+    const result = parsePage(source.raw, task, page, source.url)
     yield result
-    if (!result.next || task.kind === 'ballot') break
+    if (!result.next) break
   }
 }

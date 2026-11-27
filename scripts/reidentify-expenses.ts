@@ -1,47 +1,32 @@
 import assert from 'node:assert/strict'
-import { createHash } from 'node:crypto'
-import { database, transaction } from '../packages/database/index.ts'
-import { parsePage } from '../packages/collectors/camara/index.ts'
-
-// One-time upgrade for the first development builds. All identifiers are
-// recalculated against the archived page referenced by each published record.
-const pool = database()
-const db = await pool.connect()
-try {
-  await transaction(db, async () => {
-    const lock = await db.query('select pg_try_advisory_xact_lock(6211501) as acquired')
-    assert.ok(lock.rows[0].acquired, 'Aguarde o encerramento do Scout')
-    const snapshots = await db.query(`select distinct r.sha256,r.owner,r.api_url
-      from records r where r.kind='expense' order by r.sha256,r.owner,r.api_url`)
-    let changed = 0
-    for (const source of snapshots.rows) {
-      const document = await db.query('select raw from source_documents where sha256=$1', [source.sha256])
-      const raw = document.rows[0].raw
-      assert.equal(createHash('sha256').update(raw).digest('hex'), source.sha256)
-      const url = new URL(source.api_url)
-      const task = { kind: 'expense' as const, owner: source.owner, year: Number(url.searchParams.get('ano')) }
-      const page = parsePage(raw, task, Number(url.searchParams.get('pagina') ?? '1'), url.href)
-      const records = await db.query(`select id,field,title,amount,source_url from records
-        where kind='expense' and sha256=$1 and owner=$2 and api_url=$3 for update`,
-      [source.sha256, source.owner, source.api_url])
-      for (const old of records.rows) {
-        const next = page.records.find(candidate => candidate.field === old.field)
-        assert.ok(next, 'Campo não encontrado na evidência')
-        assert.equal(next.title, old.title)
-        assert.equal(next.sourceUrl, old.source_url)
-        const amount = await db.query('select $1::numeric is not distinct from $2::numeric as same', [next.amount, old.amount])
-        assert.ok(amount.rows[0].same, 'Valor divergente da evidência')
-        if (next.id === old.id) continue
-        await db.query(`update records set id=$2,search_text=replace(search_text,$1,$2)
-          where kind='expense' and id=$1`, [old.id, next.id])
-        // Historical JSON remains the exact snapshot from the old version.
-        await db.query("update data_revisions set id=$2 where kind='expense' and id=$1", [old.id, next.id])
-        changed++
-      }
-    }
-    console.log(JSON.stringify({ evidenceGroups: snapshots.rowCount, changed }))
-  })
-} finally {
-  db.release()
-  await pool.end()
+import {mkdir,writeFile,readFile} from 'node:fs/promises'
+import {database,transaction} from '../packages/database/index.ts'
+import {expensePlan,applyExpensePlan} from '../packages/scout/expense-reconciliation.ts'
+const args=process.argv.slice(2)
+const option=(key:string)=>args.find(a=>a.startsWith(key+'='))?.slice(key.length+1)
+const owner=option('--owner')||'204379',year=Number(option('--year')||2025)
+assert.match(owner,/^[1-9]\d{0,13}$/)
+assert.ok(Number.isInteger(year)&&year>=2008&&year<=new Date().getUTCFullYear())
+const apply=args.includes('--apply'),expected=option('--expected-plan')
+if(apply){
+ assert.match(expected||'',/^[a-f0-9]{64}$/,'Aplicação exige --expected-plan do dry-run')
+ const host=new URL(process.env.DATABASE_URL||'').hostname
+ assert.ok(['localhost','127.0.0.1','[::1]'].includes(host)||args.includes('--allow-remote'),'Aplicação remota exige autorização operacional e --allow-remote')
 }
+const pool=database(),db=await pool.connect()
+try {
+ await transaction(db,async()=>{
+  await db.query("set local timezone='UTC'")
+  assert.ok((await db.query('select pg_try_advisory_xact_lock(6211501) as locked')).rows[0].locked,'Scout ativo')
+  const plan=await expensePlan(db,owner,year)
+  await mkdir('.tools/data-engineering',{recursive:true})
+  const output='.tools/data-engineering/expense-plan-'+plan.sha256+'.json'
+  const serialized=JSON.stringify(plan,null,2)+'\n'
+  try{await writeFile(output,serialized,{mode:0o600,flag:'wx'})}catch(error){
+   if((error as NodeJS.ErrnoException).code!=='EEXIST')throw error
+   assert.equal(await readFile(output,'utf8'),serialized,'Arquivo do plano já existe com conteúdo divergente')
+  }
+  if(apply)await applyExpensePlan(db,plan,expected!)
+  console.log(JSON.stringify({mode:apply?'applied':'dry-run',examined:plan.examined,changes:plan.changes.length,planSha256:plan.sha256,output}))
+ })
+} finally {db.release();await pool.end()}
