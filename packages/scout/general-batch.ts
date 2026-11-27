@@ -8,6 +8,12 @@ import {taskScope,refreshDays} from './backfill.ts'
 
 export type BatchConfig={kinds:Task['kind'][];year:number;years?:number[];month?:number;owner?:string;maxTasks:number;maxSeconds:number;maxRequests:number;maxBytes:number;databaseLimitBytes:number;maxPending:number}
 type Fetcher=(task:Task,page:number)=>ReturnType<typeof readCollectionPage>
+async function syncRequests(db:pg.PoolClient,key:string){
+ await db.query(`update collection_requests r set status=case
+  when j.status in ('dead','quarantined') then 'failed'
+  when j.status='done' then 'done' else 'running' end
+  from collection_jobs j where r.job_key=j.key and j.key=$1 and r.status<>'done'`,[key])
+}
 export function retryDelay(attempt:number,random= Math.random){return Math.min(24*3600_000,30_000*2**Math.min(attempt,12)*(.75+random()*.5))}
 export function validateBatch(c:BatchConfig){
  const kinds=['politician','expense','proposal','vote','ballot']
@@ -38,7 +44,8 @@ export async function generalBatch(db:pg.PoolClient,c:BatchConfig,fetcher:Fetche
    for(const request of requests.rows){
     const task:Task={kind:'politician',name:request.name,year:c.year};collectionUrl(task)
     await enqueue(db,task,0)
-    await db.query("update collection_requests r set status=case when j.status='queued' then 'running' else j.status end,job_key=j.key from collection_jobs j where r.id=$1 and j.key=$2",[request.id,jobKey(task)])
+    await db.query("update collection_requests set job_key=$2 where id=$1",[request.id,jobKey(task)])
+    await syncRequests(db,jobKey(task))
    }
   })
   while(summary.tasks<c.maxTasks&&Date.now()<deadline&&!shouldStop()){
@@ -58,13 +65,20 @@ export async function generalBatch(db:pg.PoolClient,c:BatchConfig,fetcher:Fetche
    const job=next.rows[0]
    await db.query('update collection_kind_state set last_served_at=clock_timestamp(),served=served+1 where kind=$1',[job.kind])
    // Validation occurs before marking a task running or accepting any URL from persisted JSON.
-   try{collectionUrl(job.task,job.page)}catch{await db.query("update collection_jobs set status='dead',error='Tarefa institucional inválida' where key=$1",[job.key]);summary.failures++;summary.tasks++;continue}
+   try{collectionUrl(job.task,job.page)}catch{
+    await transaction(db,async()=>{
+     await db.query("update collection_jobs set status='dead',error='Tarefa institucional inválida' where key=$1",[job.key])
+     await syncRequests(db,job.key)
+    })
+    summary.failures++;summary.tasks++;continue
+   }
    await transaction(db,async()=>{
     if(!job.cycle_id){
      const scope=taskScope(job.task)
      job.cycle_id=(await db.query('insert into collection_cycles(job_key,scope_from,scope_to) values($1,$2,$3) returning id',[job.key,scope.from,scope.to])).rows[0].id
     }
     await db.query("update collection_jobs set status='running',started_at=now(),updated_at=now(),cycle_id=$2 where key=$1",[job.key,job.cycle_id])
+    await syncRequests(db,job.key)
     await db.query('update collection_kind_state set last_served_at=clock_timestamp() where kind=$1',[job.kind])
    })
    summary.tasks++
@@ -101,6 +115,7 @@ export async function generalBatch(db:pg.PoolClient,c:BatchConfig,fetcher:Fetche
      const delay=Math.max(retryDelay(attempts),Number.isFinite(retryAfter)?Math.max(0,retryAfter):0)
      await db.query("update collection_jobs set status=$2,attempts=$3,error=$4,updated_at=now(),due_at=now()+$5::float8*interval '1 millisecond' where key=$1",
       [job.key,status,attempts,identity?'Conciliação de identidade pendente':quarantine?'Página em quarentena':'Falha na fonte; retry com backoff',delay])
+     await syncRequests(db,job.key)
     })
    }
   }

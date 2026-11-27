@@ -1,4 +1,9 @@
 # Continuidade — ObservaBR
+## Correção P2 do PR #1 — 27/11/2026
+general-batch agora sincroniza collection_requests na mesma transação das falhas de collection_jobs. Estados terminais dead/quarantined tornam o pedido failed; falha temporária com retry mantém running; uma nova tentativa reabre pedidos antigos failed e o sucesso conserva o caminho done existente. O mesmo mapeamento atende vinculação a trabalho já existente e rejeição de tarefa inválida, preservando pedidos concluídos. Regressão exercitou POST/GET reais da API, dois pedidos associados durante backoff, retry e conclusão, além de quarentena/dead-letter no PostgreSQL isolado.
+
+Validação local: 34 testes aprovados, dois contratos externos opcionais ignorados; typecheck e build aprovados. A primeira execução de integração usou a porta 54672 enquanto o servidor local reiniciado estava na padrão 5432; corrigido o processo para a porta documentada e repetido com sucesso. Nenhuma migration, deploy ou alteração de dados remotos. Próximo checkpoint: enviar a correção ao mesmo PR #1 e conferir CI/revisão; gates de publicação da fase permanecem.
+
 ## Backfill e atualização contínua — extensão de 26/11/2026
 Solicitação adicional implementada na mesma branch de revisão: prioridade 2026 → 2025 → 2023 → 2024, descoberta limitada de escopos ausentes com dry-run por hash e sem reset; consumidor multi-ano com uma oportunidade de revalidação a cada cinco por tipo, cadências 1/7/30 dias e rota /api/coverage com datas/escopos separados. Migration 20261126171500_backfill_coverage somente em observabr_test e observabr_backfill_validation. Nenhum seed ou alteração de schema/dados na produção; aprovação anterior de publicação ainda não recebida. scout.yml preservado, collection.yml continua manual.
 
