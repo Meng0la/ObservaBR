@@ -24,6 +24,7 @@ jobs:
           test -n "$DATABASE_URL"
           docker run --rm \
             -v "$PWD:/work" -w /work \
+            -v "$PWD/infrastructure/certs/supabase-prod-ca-2021.crt:/root/.postgresql/root.crt:ro" \
             -e DATABASE_URL \
             postgres:17.12-bookworm@sha256:1eff563f6c868b9b433566e9f3cf6e5c79fbd3b95bf70ec7277d376cdbfc50d7 \
             pg_dump --dbname="$DATABASE_URL" --format=custom --schema=observabr \
