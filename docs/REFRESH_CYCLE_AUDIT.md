@@ -46,6 +46,8 @@ Fixtures pertencem apenas aos testes. Não foi efetuada coleta de dados reais ne
 
 Resultado local: 40 testes aprovados e dois contratos externos opcionais ignorados; typecheck e build aprovados. A migration em banco vazio/legado de teste e os papéis reader/writer passaram. Mantidos avisos já conhecidos de chunks grandes e depreciações Fastify/pg. O teste de stop é cooperativo e o de restart troca o backend real; não foi simulado desligamento físico da máquina.
 
+Entrega no commit 82ff307, mesma branch do PR #1. CI aprovada em https://github.com/Meng0la/ObservaBR/actions/runs/45982255712: verify (testes, navegador, Docker, migrations e API reader), secrets e CodeQL. O apontamento P2 foi marcado como resolvido após a validação. O checkpoint posterior somente documenta os resultados, sem alterar o código testado. Nenhum merge, deploy ou migration em produção.
+
 ## Ordem de publicação e rollback
 
 Após autorização: instalar as migrations de engenharia anteriores e depois 20261127110000_persistent_cycle_mode; publicar o runtime novo; validar modo, reader, reserva, recuperação e requests. Este código requer a coluna mode. Não houve merge, deploy ou migration de produção; cron geral permanece inativo.
