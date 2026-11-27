@@ -28,16 +28,9 @@ jobs:
             -v "$PWD/infrastructure/certs/supabase-prod-ca-2021.crt:/root/.postgresql/root.crt:ro" \
             -e DATABASE_URL \
             postgres:17.12-bookworm@sha256:1eff563f6c868b9b433566e9f3cf6e5c79fbd3b95bf70ec7277d376cdbfc50d7 \
-            pg_dump --dbname="$DATABASE_URL" --format=plain --schema=observabr \
-              --schema-only --no-owner --no-acl --no-password --lock-wait-timeout=15s \
-              --file=/work/production.dump
-          docker run --rm \
-            -v "$PWD:/work" -w /work \
-            -v "$PWD/infrastructure/certs/supabase-prod-ca-2021.crt:/root/.postgresql/root.crt:ro" \
-            -e DATABASE_URL \
-            postgres:17.12-bookworm@sha256:1eff563f6c868b9b433566e9f3cf6e5c79fbd3b95bf70ec7277d376cdbfc50d7 \
             pg_dump --dbname="$DATABASE_URL" --format=plain --data-only \
               --enable-row-security --no-owner --no-acl --no-password --lock-wait-timeout=15s \
+              --exclude-table=observabr.data_revisions_revision_seq \
               --table=observabr.api_snapshots \
               --table=observabr.collection_jobs \
               --table=observabr.collection_requests \
@@ -48,9 +41,23 @@ jobs:
               --table=observabr.records \
               --table=observabr.source_documents \
               --file=/work/production-data.sql
-          cat production-data.sql >> production.dump
-          printf "\nSELECT pg_catalog.setval('observabr.data_revisions_revision_seq', COALESCE((SELECT max(revision) FROM observabr.data_revisions), 1), EXISTS (SELECT 1 FROM observabr.data_revisions));\n" >> production.dump
-          rm production-data.sql
+          printf "\nSELECT pg_catalog.setval('observabr.data_revisions_revision_seq', COALESCE((SELECT max(revision) FROM observabr.data_revisions), 1), EXISTS (SELECT 1 FROM observabr.data_revisions));\n" >> production-data.sql
+          mkdir production-restore
+          cp supabase/migrations/20261125000100_core.sql production-restore/
+          cp supabase/migrations/20261125000200_observacoes.sql production-restore/
+          cp supabase/migrations/20261126114431_enrichment.sql production-restore/
+          cp supabase/migrations/20261126115334_cloud_service_roles.sql production-restore/
+          cp supabase/migrations/20261126115831_cloud_security.sql production-restore/
+          mv production-data.sql production-restore/20261127150000_production_data.sql
+          printf '%s\n' \
+            20261125000100_core.sql \
+            20261125000200_observacoes.sql \
+            20261126114431_enrichment.sql \
+            20261126115334_cloud_service_roles.sql \
+            20261126115831_cloud_security.sql \
+            20261127150000_production_data.sql > production-restore/RESTORE_ORDER.txt
+          tar -cf production.dump -C production-restore .
+          rm -rf production-restore
       - name: Cifrar, autenticar e eliminar texto claro
         env:
           BACKUP_KEY_HEX: ${{ secrets.OBSERVABR_BACKUP_KEY_HEX }}
