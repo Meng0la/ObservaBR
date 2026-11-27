@@ -1,4 +1,5 @@
 name: Backup de producao temporario
+# Operational one-shot; removed immediately after the encrypted artifact is recovered.
 
 on:
   push:
