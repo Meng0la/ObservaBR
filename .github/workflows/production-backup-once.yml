@@ -28,9 +28,29 @@ jobs:
             -v "$PWD/infrastructure/certs/supabase-prod-ca-2021.crt:/root/.postgresql/root.crt:ro" \
             -e DATABASE_URL \
             postgres:17.12-bookworm@sha256:1eff563f6c868b9b433566e9f3cf6e5c79fbd3b95bf70ec7277d376cdbfc50d7 \
-            pg_dump --dbname="$DATABASE_URL" --format=custom --schema=observabr \
-              --enable-row-security --no-password --lock-wait-timeout=15s \
+            pg_dump --dbname="$DATABASE_URL" --format=plain --schema=observabr \
+              --schema-only --no-owner --no-acl --no-password --lock-wait-timeout=15s \
               --file=/work/production.dump
+          docker run --rm \
+            -v "$PWD:/work" -w /work \
+            -v "$PWD/infrastructure/certs/supabase-prod-ca-2021.crt:/root/.postgresql/root.crt:ro" \
+            -e DATABASE_URL \
+            postgres:17.12-bookworm@sha256:1eff563f6c868b9b433566e9f3cf6e5c79fbd3b95bf70ec7277d376cdbfc50d7 \
+            pg_dump --dbname="$DATABASE_URL" --format=plain --data-only \
+              --enable-row-security --no-owner --no-acl --no-password --lock-wait-timeout=15s \
+              --table=observabr.api_snapshots \
+              --table=observabr.collection_jobs \
+              --table=observabr.collection_requests \
+              --table=observabr.data_revisions \
+              --table=observabr.enrichment_documents \
+              --table=observabr.enrichment_jobs \
+              --table=observabr.entity_contexts \
+              --table=observabr.records \
+              --table=observabr.source_documents \
+              --file=/work/production-data.sql
+          cat production-data.sql >> production.dump
+          printf "\nSELECT pg_catalog.setval('observabr.data_revisions_revision_seq', COALESCE((SELECT max(revision) FROM observabr.data_revisions), 1), EXISTS (SELECT 1 FROM observabr.data_revisions));\n" >> production.dump
+          rm production-data.sql
       - name: Cifrar, autenticar e eliminar texto claro
         env:
           BACKUP_KEY_HEX: ${{ secrets.OBSERVABR_BACKUP_KEY_HEX }}

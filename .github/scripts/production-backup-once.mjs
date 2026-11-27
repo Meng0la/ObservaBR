@@ -9,7 +9,7 @@ try{
  const metadata=await encryptBackup(BACKUP_PLAIN,BACKUP_ENCRYPTED,key)
  await decryptBackup(BACKUP_ENCRYPTED,BACKUP_VERIFY,key)
  if(await fileHash(BACKUP_VERIFY)!==plainSha256)throw Error('Round-trip divergente')
- const manifest={...metadata,plainSha256,encryptedSha256:await fileHash(BACKUP_ENCRYPTED),schema:'observabr',source:'production',restoreTest:'pending-isolated-postgresql'}
+ const manifest={...metadata,plainSha256,encryptedSha256:await fileHash(BACKUP_ENCRYPTED),schema:'observabr',format:'plain-sql',source:'production',sequenceState:'derived-from-restored-primary-key',restoreTest:'pending-isolated-postgresql'}
  await writeFile(BACKUP_MANIFEST,JSON.stringify(manifest,null,2),{flag:'wx',mode:0o600})
  console.log(JSON.stringify({encrypted:true,authenticated:true,hashes:true,ciphertextBytes:metadata.ciphertextBytes}))
 }finally{
