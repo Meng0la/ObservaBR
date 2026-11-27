@@ -2,7 +2,7 @@ import {spawn} from 'node:child_process'
 import {mkdir,mkdtemp,writeFile,rm,readdir,lstat} from 'node:fs/promises'
 import {resolve,join} from 'node:path'
 import {tmpdir} from 'node:os'
-import {backupKey,encryptBackup,decryptBackup,fileHash} from '../packages/scout/backup.ts'
+import {backupKey,backupProcessEnvironment,encryptBackup,decryptBackup,fileHash} from '../packages/scout/backup.ts'
 
 // A mounted private external directory is supported. No uploads to public Actions artifacts.
 const destination=process.env.BACKUP_DIRECTORY
@@ -23,10 +23,7 @@ const encrypted=join(root,base+'.obr')
 try{
  const result=await new Promise<number|null>((done,reject)=>{
   const args=['--format=custom','--schema=observabr','--enable-row-security','--no-password','--lock-wait-timeout=15s','--file',dump]
-  const child=spawn(process.env.PG_DUMP_BIN||'pg_dump',args,{timeout:240000,env:{...process.env,
-   PGHOST:url.hostname,PGPORT:url.port||'5432',PGUSER:decodeURIComponent(url.username),PGPASSWORD:decodeURIComponent(url.password),
-   PGDATABASE:decodeURIComponent(url.pathname.slice(1)),PGSSLMODE:url.searchParams.get('sslmode')||'prefer',
-   ...(url.searchParams.get('sslrootcert')?{PGSSLROOTCERT:url.searchParams.get('sslrootcert')!}:{})},stdio:['ignore','ignore','pipe']})
+  const child=spawn(process.env.PG_DUMP_BIN||'pg_dump',args,{timeout:240000,env:backupProcessEnvironment(process.env,url),stdio:['ignore','ignore','pipe']})
   // pg_dump errors may contain endpoints/usernames; report a generic status, never raw stderr.
   child.stderr.resume();child.on('error',()=>reject(Error('Não foi possível iniciar pg_dump')));child.on('exit',done)
  })

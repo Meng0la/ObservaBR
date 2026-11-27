@@ -8,7 +8,7 @@ jobs:
     timeout-minutes: 20
     services:
       postgres-test:
-        image: postgres:17.12-bookworm
+        image: postgres:17.12-bookworm@sha256:1eff563f6c868b9b433566e9f3cf6e5c79fbd3b95bf70ec7277d376cdbfc50d7
         env:
           POSTGRES_DB: observabr_test
           POSTGRES_PASSWORD: ci-ephemeral-test
@@ -17,8 +17,8 @@ jobs:
         options: >-
           --health-cmd pg_isready --health-interval 5s --health-timeout 3s --health-retries 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24.22.3
           cache: npm
@@ -61,11 +61,27 @@ jobs:
   secrets:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
       - name: Examinar histórico de segredos
-        run: docker run --rm -v "$PWD:/repo:ro" zricethezav/gitleaks:v8.24.2 git /repo --redact
+        run: docker run --rm -v "$PWD:/repo:ro" zricethezav/gitleaks:v8.24.2@sha256:b5918eb91b8d2473cec722f066abb4352e4ffdc4ec9f4283ec143aba9ec9ebc4 git /repo --redact
+  appsec:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Semgrep OWASP
+        run: >-
+          docker run --rm -v "$PWD:/src:ro" semgrep/semgrep:1.145.0@sha256:b68f9b68483955b85042dac7b4533757779625a02dcf91e470da4c2df1b430be
+          semgrep scan --error --config p/owasp-top-ten /src/apps /src/packages /src/scripts
+      - name: Construir imagem imutável
+        run: docker build --pull=false -t observabr:security .
+      - name: Trivy na imagem
+        run: >-
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock
+          aquasec/trivy:0.76.2@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb
+          image --exit-code 1 --ignore-unfixed --severity HIGH,CRITICAL observabr:security
   codeql:
     if: github.event.repository.visibility == 'public'
     runs-on: ubuntu-24.04
@@ -73,9 +89,9 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: github/codeql-action/init@bf58c2ac1f8060aa73f1225f461c80391348076a # v4
         with:
           languages: javascript-typescript
           build-mode: none
-      - uses: github/codeql-action/analyze@v4
+      - uses: github/codeql-action/analyze@bf58c2ac1f8060aa73f1225f461c80391348076a # v4

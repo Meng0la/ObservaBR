@@ -45,8 +45,10 @@ export async function coverage(db:Pick<pg.Pool,'query'>,f:CoverageFilter){
    when last_complete.completed_at is not null then 'complete_as_of_collection'
    when j.page>1 or latest.pages>0 then 'partial' else 'pending' end state
   from collection_jobs j
-  left join lateral(select * from collection_cycles c where c.job_key=j.key order by started_at desc limit 1) latest on true
-  left join lateral(select * from collection_cycles c where c.job_key=j.key and c.status='complete' order by completed_at desc limit 1) last_complete on true
+  left join lateral(select c.job_key,c.scope_from,c.scope_to,c.mode,c.started_at,c.finished_at,c.pages,c.source_rows,c.validated_rows,c.published_rows
+   from collection_cycles c where c.job_key=j.key order by started_at desc limit 1) latest on true
+  left join lateral(select c.job_key,c.scope_from,c.scope_to,c.completed_at,c.source_rows,c.validated_rows,c.published_rows
+   from collection_cycles c where c.job_key=j.key and c.status='complete' order by completed_at desc limit 1) last_complete on true
   where j.kind=$1 and j.task->>'year'=$2::text and ${subjectFilter}
   order by j.key limit 100 offset $4`,[...values,(f.page-1)*100])
  const scopeTotal=(await db.query(`select count(*)::int n from collection_jobs j where j.kind=$1 and j.task->>'year'=$2::text and ${subjectFilter}`,values)).rows[0].n

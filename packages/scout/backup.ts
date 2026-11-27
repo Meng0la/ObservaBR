@@ -9,6 +9,13 @@ export function backupKey(value:string|undefined){
  if(!value||!/^[a-fA-F0-9]{64}$/.test(value))throw Error('BACKUP_KEY_HEX exige chave independente de 32 bytes')
  return Buffer.from(value,'hex')
 }
+export function backupProcessEnvironment(source:NodeJS.ProcessEnv,url:URL):NodeJS.ProcessEnv{
+ const child:NodeJS.ProcessEnv={}
+ for(const key of ['PATH','Path','SystemRoot','WINDIR','LD_LIBRARY_PATH','LANG','LC_ALL','TZ'])if(source[key])child[key]=source[key]
+ return {...child,PGHOST:url.hostname,PGPORT:url.port||'5432',PGUSER:decodeURIComponent(url.username),
+  PGPASSWORD:decodeURIComponent(url.password),PGDATABASE:decodeURIComponent(url.pathname.slice(1)),
+  PGSSLMODE:url.searchParams.get('sslmode')||'prefer',...(url.searchParams.get('sslrootcert')?{PGSSLROOTCERT:url.searchParams.get('sslrootcert')!}:{})}
+}
 export async function encryptBackup(source:string,destination:string,key:Buffer){
  const nonce=randomBytes(12),cipher=createCipheriv('aes-256-gcm',key,nonce)
  const handle=await open(destination,'wx',0o600)

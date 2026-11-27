@@ -22,6 +22,16 @@ BEGIN
   IF has_table_privilege('observabr_api','observabr.source_documents','SELECT') THEN
     RAISE EXCEPTION 'Leitor com acesso direto aos documentos brutos';
   END IF;
+  IF has_table_privilege('observabr_api','observabr.collection_receipts','SELECT') OR
+     has_table_privilege('observabr_api','observabr.collection_quarantine','SELECT') OR
+     has_table_privilege('observabr_api','observabr.collection_runs','SELECT') THEN
+    RAISE EXCEPTION 'Leitor com acesso ao controle interno da coleta';
+  END IF;
+  IF has_table_privilege('observabr_scout','observabr.source_documents','UPDATE,DELETE') OR
+     has_table_privilege('observabr_scout','observabr.collection_receipts','UPDATE,DELETE') OR
+     has_table_privilege('observabr_scout','observabr.collection_observations','UPDATE,DELETE') THEN
+    RAISE EXCEPTION 'Scout pode alterar evidência append-only';
+  END IF;
   IF NOT has_column_privilege('observabr_api','observabr.collection_requests','name','INSERT') THEN
     RAISE EXCEPTION 'Leitor sem acesso à solicitação de coleta';
   END IF;
