@@ -1,0 +1,49 @@
+name: Backup de producao temporario
+
+on:
+  push:
+    branches: [data-engineering-controlled-ingestion]
+    paths: [.github/workflows/production-backup-once.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  encrypted-backup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.22.3
+      - name: Criar dump com TLS verificado
+        env:
+          DATABASE_URL: ${{ secrets.OBSERVABR_SCOUT_DATABASE_URL }}
+        run: |
+          test -n "$DATABASE_URL"
+          docker run --rm \
+            -v "$PWD:/work" -w /work \
+            -e DATABASE_URL \
+            postgres:17.12-bookworm@sha256:1eff563f6c868b9b433566e9f3cf6e5c79fbd3b95bf70ec7277d376cdbfc50d7 \
+            pg_dump --dbname="$DATABASE_URL" --format=custom --schema=observabr \
+              --enable-row-security --no-password --lock-wait-timeout=15s \
+              --file=/work/production.dump
+      - name: Cifrar, autenticar e eliminar texto claro
+        env:
+          BACKUP_KEY_HEX: ${{ secrets.OBSERVABR_BACKUP_KEY_HEX }}
+          BACKUP_PLAIN: production.dump
+          BACKUP_ENCRYPTED: observabr-production.obr
+          BACKUP_VERIFY: verification.dump
+          BACKUP_MANIFEST: observabr-production.json
+        run: node .github/scripts/production-backup-once.mjs
+      - name: Publicar somente copia cifrada
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: observabr-production-encrypted
+          path: |
+            observabr-production.obr
+            observabr-production.json
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
