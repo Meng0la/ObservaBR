@@ -1,5 +1,10 @@
 # Engenharia de dados — validação em andamento
 
+## P2 — refresh após a primeira página (27/11/2026)
+O modo agora é persistido e imutável por ciclo, preservando a reserva de sincronização em todas as páginas, falhas e reinicializações. A auditoria das transições relacionadas e o plano de rollback estão em REFRESH_CYCLE_AUDIT.md. Migration nova exclusivamente local; nenhum merge/deploy ou alteração de dados de produção. A sincronização de collection_requests do P2 anterior permanece coberta pelos testes.
+
+Suíte local: 40 testes aprovados, dois contratos externos opcionais ignorados; typecheck/build passaram. Testes incluem restart em backend PostgreSQL distinto, múltiplas páginas, backoff, reserva 1/5 sob backfill recente contínuo, justiça entre refreshes, falha no claim, concorrência, complemento sem ciclo e isolamento de checkpoint incompatível. Migration validada com legado, RLS e reader/writer em banco descartável. Nenhuma coleta real ou migração remota nesta correção.
+
 ## P2 — sincronização do pedido após falha (27/11/2026)
 Corrigido o achado do PR #1 em general-batch.ts: o pedido da interface deixava de acompanhar o resultado do consumidor geral. A sincronização agora ocorre junto da atualização de falha, dentro da mesma transação. dead/quarantined são publicados como failed; failed da tarefa, enquanto houver tentativa automática pendente, mantém o pedido running. Ao iniciar uma nova tentativa, pedidos failed voltam a running; persist continua concluindo em done. A vinculação de um segundo pedido a uma tarefa em backoff usa a mesma regra, sem encaminhar erro terminal indevido. Pedidos já concluídos não são reabertos pela sincronização.
 

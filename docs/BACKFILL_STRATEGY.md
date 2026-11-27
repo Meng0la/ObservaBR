@@ -24,6 +24,8 @@ Na página real de 2026 houve 15 pares com mesmo ID e diferença apenas em sigla
 
 O contador persistente por tipo reserva cada quinta oportunidade para tarefas concluídas cujo prazo de revalidação venceu; as outras quatro priorizam backfill na ordem anual. Se uma classe não tiver trabalho elegível, a outra usa a capacidade. O contador persiste entre lotes de uma página, e a justiça entre tipos continua pela última oportunidade atendida. Assim uma fila histórica extensa não bloqueia indefinidamente revalidações e os nominais não monopolizam os demais tipos.
 
+Correção de 27/11: a elegibilidade de refresh passou a usar collection_cycles.mode durante todo o ciclo, independentemente de status queued/failed ou página corrente. Só o início de um ciclo novo consulta conclusão anterior. Refreshes concorrem pela última oportunidade recebida; a ordenação de anos continua aplicada ao backfill. Detalhes e auditoria em REFRESH_CYCLE_AUDIT.md.
+
 A ordem anual vale dentro das oportunidades de cada tipo; não é uma barreira que paralisa todos os outros tipos até encerrar um ano. A reserva de sincronização pode atender um escopo antigo vencido enquanto há backfill recente. Isso é deliberado para preservar atualização e justiça.
 
 Cadência do consumidor geral: ano corrente e votações dos dois meses mais recentes, um dia; ano anterior e meses antigos do ano corrente, sete dias; históricos anteriores, trinta dias. Toda consulta é uma nova observação, com upsert, bytes e hash, sem duplicar revisões quando valores não mudam. A atualização não se limita ao maior ID/data: reaprecia períodos antigos, pois a fonte pode retificar ou publicar documentos tardiamente. Não há CDC/ETag alegado sem implementação.
@@ -89,7 +91,7 @@ Entrega: commit 99e697e no PR #1 em rascunho. [CI aprovada](https://github.com/M
 
 ## Publicação futura e rollback
 
-Após autorização explícita: conferir backup/checkpoint e catálogo; aplicar 20261126160503_data_engineering e 20261126171500_backfill_coverage na ordem; publicar o runtime validado; testar reader, aliases e /api/coverage; só então repetir dry-run e considerar conciliação financeira/seed revisado. Ativação de cron geral continua sendo uma decisão separada. O schema novo deve preceder o runtime que o consulta.
+Após autorização explícita: conferir backup/checkpoint e catálogo; aplicar 20261126160503_data_engineering, 20261126171500_backfill_coverage e 20261127110000_persistent_cycle_mode na ordem; publicar o runtime validado; testar reader, aliases e /api/coverage; só então repetir dry-run e considerar conciliação financeira/seed revisado. Ativação de cron geral continua sendo uma decisão separada. O schema novo deve preceder o runtime que o consulta. Rollback e compatibilidade dos consumidores estão detalhados em REFRESH_CYCLE_AUDIT.md.
 
 Se houver falha após publicação, interromper o consumidor geral e novas execuções manuais antes de trocar o runtime; preservar o lock e os checkpoints. Não entregar tarefas roster:period ao consumidor antigo, que não entende esse contrato. Preparar rollback em branch/PR próprio, com autorização, usando código compatível com os aliases já existentes. O commit 7033707 é referência de código anterior à extensão, mas precisa de build/deploy e verificação próprios; não é um artefato Render previamente publicado.
 

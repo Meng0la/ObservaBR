@@ -88,7 +88,8 @@ test('cobertura HTTP usa competência para período e mantém emissão/coleta/ve
  const api=await app(p)
  try{
   await enqueue(db,task)
-  cycle=(await db.query("insert into collection_cycles(job_key,scope_from,scope_to) values($1,'2026-01-01','2026-11-26') returning id",[key])).rows[0].id
+  cycle=(await db.query("insert into collection_cycles(job_key,scope_from,scope_to,mode) values($1,'2026-01-01','2026-11-26','backfill') returning id",[key])).rows[0].id
+  await db.query('update collection_jobs set cycle_id=$2 where key=$1',[key,cycle])
   await persist(db,key,task,parsePage(raw,task,1,collectionUrl(task).href),undefined,cycle)
   const response=await api.inject(`/api/coverage?kind=expense&year=2026&owner=${owner}&by=period`)
   assert.equal(response.statusCode,200,response.body)
@@ -97,7 +98,7 @@ test('cobertura HTTP usa competência para período e mantém emissão/coleta/ve
   assert.equal(c.scopes[0].state,'complete_as_of_collection');assert.equal(c.scopes[0].current_validated_rows,'1')
   assert.equal(c.institutionalTotal,null)
  }finally{
-  if(cycle){for(const table of ['collection_observations','collection_absences','collection_receipts'])await db.query(`delete from ${table} where cycle_id=$1`,[cycle]);await db.query('delete from collection_cycles where id=$1',[cycle])}
+  if(cycle){await db.query('update collection_jobs set cycle_id=null where key=$1',[key]);for(const table of ['collection_observations','collection_absences','collection_receipts'])await db.query(`delete from ${table} where cycle_id=$1`,[cycle]);await db.query('delete from collection_cycles where id=$1',[cycle])}
   await db.query("delete from records where kind='expense' and owner=$1",[owner]);await db.query('delete from collection_jobs where key=$1',[key])
   await api.close();db.release();await p.end()
  }

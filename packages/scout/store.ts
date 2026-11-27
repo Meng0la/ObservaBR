@@ -14,15 +14,19 @@ export function jobKey(t:Task) {
 export async function enqueue(db:pg.PoolClient, task:Task, priority=10) {
   await db.query('insert into collection_jobs(key,kind,task,priority) values($1,$2,$3,$4) on conflict do nothing',[jobKey(task),task.kind,task,priority])
 }
-export async function persist(db:pg.PoolClient, key:string, task:Task, page:Page,verification?:{collectedAt:Date,verifiedAt:Date},cycleId?:string) {
+export async function persist(db:pg.PoolClient, key:string, task:Task, page:Page,verification?:{collectedAt:Date,verifiedAt:Date},cycleId?:string,nextDueDays=1) {
+  if(!Number.isInteger(nextDueDays)||nextDueDays<1||nextDueDays>365)throw Error('Cadência inválida')
   const hash=createHash('sha256').update(page.raw).digest('hex')
   await transaction(db,async()=>{
+    const job=(await db.query('select cycle_id from collection_jobs where key=$1 for update',[key])).rows[0]
     if(cycleId){
-      const receipt=await db.query('select sha256 from collection_receipts where cycle_id=$1 and page=$2',[cycleId,page.page])
+      const receipt=await db.query('select r.sha256 from collection_receipts r join collection_cycles c on c.id=r.cycle_id where r.cycle_id=$1 and r.page=$2 and c.job_key=$3',[cycleId,page.page,key])
       if(receipt.rowCount){
         if(receipt.rows[0].sha256!==hash)throw new Error('Página mudou dentro do ciclo; revisar checkpoint')
         return
       }
+      const cycle=(await db.query("select id from collection_cycles where id=$1 and job_key=$2 and status='running'",[cycleId,key])).rows[0]
+      if(!cycle||job?.cycle_id!==cycleId)throw Error('Checkpoint não pertence ao ciclo ativo')
     }
     if(task.kind==='expense'){
       const previous=await db.query("select id,field from records where kind='expense' and owner=$1 and sha256=$2 and api_url=$3",[task.owner,hash,page.url])
@@ -55,6 +59,8 @@ export async function persist(db:pg.PoolClient, key:string, task:Task, page:Page
       for(const observation of page.observations)await db.query(`insert into collection_observations(cycle_id,kind,id,sha256,field) values($1,$2,$3,$4,$5) on conflict do nothing`,[cycleId,task.kind,observation.id,hash,observation.field])
       await db.query(`update collection_cycles set source_rows=source_rows+$2,validated_rows=validated_rows+$2,published_rows=published_rows+$3,pages=pages+1 where id=$1`,[cycleId,page.sourceRows,page.records.length])
     }
+    // An untracked complementary read must not consume/reset an active tracked cycle.
+    if(!cycleId&&job?.cycle_id)return
     if(page.next) {
       await db.query("update collection_jobs set page=$2,status='queued',attempts=0,error=null,updated_at=now() where key=$1",[key,page.page+1])
     } else {
@@ -67,7 +73,7 @@ export async function persist(db:pg.PoolClient, key:string, task:Task, page:Page
         // A cycle resumed from a legacy page is kept partial, never used as proof of removal.
         await db.query("update collection_cycles set status=$2,finished_at=now(),completed_at=case when $2='complete' then now() else null end where id=$1",[cycleId,complete?'complete':'partial'])
       }
-      await db.query("update collection_jobs set status='done',page=1,attempts=0,cycle_id=null,error=null,updated_at=now(),due_at=now()+interval '1 day' where key=$1",[key])
+      await db.query("update collection_jobs set status='done',page=1,attempts=0,cycle_id=null,error=null,updated_at=now(),due_at=now()+$2::int*interval '1 day' where key=$1",[key,nextDueDays])
       await db.query("update collection_requests set status='done' where job_key=$1",[key])
     }
   })

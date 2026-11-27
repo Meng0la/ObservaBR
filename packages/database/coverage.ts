@@ -31,7 +31,7 @@ export async function coverage(db:Pick<pg.Pool,'query'>,f:CoverageFilter){
   (j.kind='ballot' and exists(select 1 from records b where b.kind='ballot' and b.owner=$3 and b.data->>'voteId'=j.task->>'owner')))`
  const scopes=await db.query(`select j.task->>'owner' subject,j.task->>'month' as "month",j.status,j.page,
   latest.scope_from::text requested_from,latest.scope_to::text requested_to,
-  latest.started_at cycle_started_at,latest.finished_at cycle_finished_at,latest.pages pages_collected,
+  latest.mode cycle_mode,latest.started_at cycle_started_at,latest.finished_at cycle_finished_at,latest.pages pages_collected,
   latest.source_rows::text current_observed_source_rows,latest.validated_rows::text current_validated_rows,latest.published_rows::text current_published_observations,
   last_complete.scope_from::text covered_from,last_complete.scope_to::text covered_to,
   last_complete.completed_at,last_complete.source_rows::text observed_source_rows,last_complete.validated_rows::text validated_rows,

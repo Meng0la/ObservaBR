@@ -53,21 +53,29 @@ export async function generalBatch(db:pg.PoolClient,c:BatchConfig,fetcher:Fetche
    if(usage.requests>=c.maxRequests||usage.bytes>=c.maxBytes){summary.status='budget';break}
    const limits=await db.query("select pg_database_size(current_database())::float8 as bytes,(select count(*)::int from collection_jobs where status in ('queued','failed','running')) as pending")
    if(limits.rows[0].bytes+c.maxBytes>c.databaseLimitBytes*.95){summary.status='capacity';break}
-   const next=await db.query(`select j.* from collection_jobs j join collection_kind_state k on k.kind=j.kind
+   const next=await db.query(`select j.*,lane.mode as cycle_mode,active.job_key as cycle_job_key,active.status as cycle_status
+    from collection_jobs j join collection_kind_state k on k.kind=j.kind
+    left join collection_cycles active on active.id=j.cycle_id
+    cross join lateral(select coalesce(active.mode,case when j.status='done' or exists(
+     select 1 from collection_cycles prior where prior.job_key=j.key and prior.completed_at is not null
+    ) then 'refresh' else 'backfill' end) as mode) lane
     where j.kind=any($1::text[]) and j.task->>'year'=any($2::text[]) and j.due_at<=now()
     and j.status in ('queued','failed','done') and ($3::text is null or j.kind<>'vote' or j.task->>'month'=$3)
     and ($4::text is null or j.task->>'owner'=$4)
     and ($5::boolean or j.kind not in ('politician','vote'))
     order by k.last_served_at,
-     case when (k.served%5=4)=(j.status='done') then 0 else 1 end,
-     array_position($2::text[],j.task->>'year'),j.priority,j.due_at,j.key limit 1`,[c.kinds,(c.years??[c.year]).map(String),c.month==null?null:String(c.month),c.owner??null,limits.rows[0].pending+200<=c.maxPending])
+     case when (k.served%5=4)=(lane.mode='refresh') then 0 else 1 end,
+     case when lane.mode='refresh' then j.updated_at end asc nulls last,
+     case when lane.mode='backfill' then array_position($2::text[],j.task->>'year') end asc nulls last,
+     j.priority,j.due_at,j.key limit 1`,[c.kinds,(c.years??[c.year]).map(String),c.month==null?null:String(c.month),c.owner??null,limits.rows[0].pending+200<=c.maxPending])
    if(!next.rowCount)break
    const job=next.rows[0]
-   await db.query('update collection_kind_state set last_served_at=clock_timestamp(),served=served+1 where kind=$1',[job.kind])
+   const invalidCycle=job.cycle_id&&(job.cycle_job_key!==job.key||job.cycle_status!=='running')
    // Validation occurs before marking a task running or accepting any URL from persisted JSON.
-   try{collectionUrl(job.task,job.page)}catch{
+   try{collectionUrl(job.task,job.page);if(invalidCycle)throw Error('Ciclo incompatível')}catch{
     await transaction(db,async()=>{
-     await db.query("update collection_jobs set status='dead',error='Tarefa institucional inválida' where key=$1",[job.key])
+     await db.query('update collection_jobs set status=$2,error=$3 where key=$1',[job.key,invalidCycle?'quarantined':'dead',invalidCycle?'Checkpoint aponta para ciclo incompatível':'Tarefa institucional inválida'])
+     await db.query('update collection_kind_state set last_served_at=clock_timestamp(),served=served+1 where kind=$1',[job.kind])
      await syncRequests(db,job.key)
     })
     summary.failures++;summary.tasks++;continue
@@ -75,11 +83,11 @@ export async function generalBatch(db:pg.PoolClient,c:BatchConfig,fetcher:Fetche
    await transaction(db,async()=>{
     if(!job.cycle_id){
      const scope=taskScope(job.task)
-     job.cycle_id=(await db.query('insert into collection_cycles(job_key,scope_from,scope_to) values($1,$2,$3) returning id',[job.key,scope.from,scope.to])).rows[0].id
+     job.cycle_id=(await db.query('insert into collection_cycles(job_key,scope_from,scope_to,mode) values($1,$2,$3,$4) returning id',[job.key,scope.from,scope.to,job.cycle_mode])).rows[0].id
     }
     await db.query("update collection_jobs set status='running',started_at=now(),updated_at=now(),cycle_id=$2 where key=$1",[job.key,job.cycle_id])
     await syncRequests(db,job.key)
-    await db.query('update collection_kind_state set last_served_at=clock_timestamp() where kind=$1',[job.kind])
+    await db.query('update collection_kind_state set last_served_at=clock_timestamp(),served=served+1 where kind=$1',[job.kind])
    })
    summary.tasks++
    let source:Awaited<ReturnType<Fetcher>>|undefined
@@ -94,8 +102,7 @@ export async function generalBatch(db:pg.PoolClient,c:BatchConfig,fetcher:Fetche
     source=await fetcher(job.task,job.page)
     validation=true
     const page=parsePage(source.raw,job.task,job.page,source.url)
-    await persist(db,job.key,job.task,page,undefined,job.cycle_id)
-    if(!page.next)await db.query("update collection_jobs set due_at=now()+$2::int*interval '1 day' where key=$1",[job.key,refreshDays(job.task)])
+    await persist(db,job.key,job.task,page,undefined,job.cycle_id,refreshDays(job.task))
     summary.pages++;summary.records+=page.records.length
    }catch(error){
     if(error instanceof CollectionBudgetExceeded||Date.now()>=deadline){
