@@ -1,0 +1,44 @@
+name: Reparo temporario do historico de migrations
+
+on:
+  push:
+    branches: [data-engineering-controlled-ingestion]
+    paths: [.github/workflows/migration-repair-once.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.22.3
+      - name: Preparar CA confiavel
+        run: |
+          install -d -m 700 "$HOME/.postgresql"
+          install -m 600 infrastructure/certs/supabase-prod-ca-2021.crt "$HOME/.postgresql/root.crt"
+      - name: Confirmar CLI oficial
+        run: npx --yes supabase@3.4.0 --version
+      - name: Reparar somente o historico autorizado
+        env:
+          DATABASE_URL: ${{ secrets.OBSERVABR_SCOUT_DATABASE_URL }}
+        run: |
+          test -n "$DATABASE_URL"
+          npx --yes supabase@3.4.0 migration repair \
+            20261127152654 20261127152727 20261127152747 \
+            --status reverted --remote="$DATABASE_URL" --yes --workdir .
+          npx --yes supabase@3.4.0 migration repair \
+            20261126160503 20261126171500 20261127110000 20261127155134 \
+            --status applied --remote="$DATABASE_URL" --yes --workdir .
+      - name: Listar historico reconciliado
+        env:
+          DATABASE_URL: ${{ secrets.OBSERVABR_SCOUT_DATABASE_URL }}
+        run: npx --yes supabase@3.4.0 migration list --remote="$DATABASE_URL" --output pretty --workdir .
+      - name: Simular push sem aplicar
+        env:
+          DATABASE_URL: ${{ secrets.OBSERVABR_SCOUT_DATABASE_URL }}
+        run: npx --yes supabase@3.4.0 db push --dry-run --skip-vault --remote="$DATABASE_URL" --yes --workdir .
