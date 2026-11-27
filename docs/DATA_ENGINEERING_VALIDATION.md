@@ -7,6 +7,8 @@ Regressão no PostgreSQL e pontos HTTP POST /api/requests e GET /api/requests/:i
 
 Sem migration nova. A ordem de publicação da fase permanece schema validado antes do runtime; esta correção adiciona somente código ao PR em Draft, sem merge/deploy automático. Rollback por revert do commit em PR autorizado preserva schema, evidências e checkpoints, mas restaura o defeito de status; não usar reset ou alteração em massa de pedidos como rollback. Nenhuma reparação de pedidos ou coleta foi executada em produção.
 
+Commit a3f9870 enviado ao PR #1. CI aprovada em https://github.com/Meng0la/ObservaBR/actions/runs/45978864664 (verify, secrets e CodeQL); o apontamento P2 foi marcado como resolvido após essa validação. O checkpoint documental posterior não altera o código testado.
+
 Extensão de Backfill e atualização contínua implementada após a auditoria independente: consulte BACKFILL_STRATEGY.md e BACKFILL_METRICS.json. Há política anual ordenada, seed limitado com plano por hash, consumidor multi-ano, reserva persistente de revalidação e API de cobertura com datas separadas. Baseline remoto confirmado e preservado. Piloto isolado passou de 100 para 200 despesas, 160 para 173 proposições e 1.585 para 1.685 votações, incluindo recortes de 2026. Cadastro histórico incluiu duas identidades, sem substituir filiações atuais; as 109 proposições antigas sem data continuam explicitamente pendentes. Arquivo anual 2026 avaliado em staging (128.906 linhas, 4,8 MB ZIP), sem promoção ao índice.
 
 Etapa iniciada em 26/11/2026 na branch data-engineering-controlled-ingestion. Produção preservada; não houve conciliação remota, deploy desta branch ou ativação de coleta geral. Este relatório é incremental e não declara a etapa inteira concluída.
