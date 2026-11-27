@@ -17,7 +17,7 @@ export function backupProcessEnvironment(source:NodeJS.ProcessEnv,url:URL):NodeJ
   PGSSLMODE:url.searchParams.get('sslmode')||'prefer',...(url.searchParams.get('sslrootcert')?{PGSSLROOTCERT:url.searchParams.get('sslrootcert')!}:{})}
 }
 export async function encryptBackup(source:string,destination:string,key:Buffer){
- const nonce=randomBytes(12),cipher=createCipheriv('aes-256-gcm',key,nonce)
+ const nonce=randomBytes(12),cipher=createCipheriv('aes-256-gcm',key,nonce,{authTagLength:16})
  const handle=await open(destination,'wx',0o600)
  await handle.write(Buffer.concat([magic,nonce]));await handle.close()
  const digest=createHash('sha256');let bytes=0
@@ -33,7 +33,7 @@ export async function decryptBackup(source:string,destination:string,key:Buffer)
  const handle=await open(source,'r'),header=Buffer.alloc(20),tag=Buffer.alloc(16)
  try{await handle.read(header,0,20,0);await handle.read(tag,0,16,size-16)}finally{await handle.close()}
  if(!header.subarray(0,8).equals(magic))throw Error('Formato de backup desconhecido')
- const decipher=createDecipheriv('aes-256-gcm',key,header.subarray(8));decipher.setAuthTag(tag)
+ const decipher=createDecipheriv('aes-256-gcm',key,header.subarray(8),{authTagLength:16});decipher.setAuthTag(tag)
  const output=await open(destination,'wx',0o600)
  try{
   await pipeline(createReadStream(source,{start:20,end:size-17}),decipher,output.createWriteStream())

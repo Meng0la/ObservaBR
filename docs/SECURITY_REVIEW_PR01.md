@@ -32,7 +32,7 @@ Permanecem os avisos preexistentes de depreciação Fastify/pg e chunks Vite gra
 - `npm audit`: zero vulnerabilidades conhecidas.
 - CI Linux: executa testes, Gitleaks, CodeQL, Semgrep OWASP e Trivy da imagem; o resultado do commit de remediação deve estar aprovado antes de qualquer publicação.
 
-Os testes cobrem negação do reader, imutabilidade para o writer, derivação dos contadores, cache, rate limit, timeout, limite de concorrência, TLS remoto e isolamento do ambiente do backup. Relatórios brutos locais permanecem em `.tools/security-review` e não são versionados.
+Os testes cobrem negação do reader, imutabilidade para o writer, derivação dos contadores, cache, rate limit, timeout, limite de concorrência, TLS remoto, tag GCM explícita e isolamento do ambiente do backup. Relatórios brutos locais permanecem em `.tools/security-review` e não são versionados.
 
 ## Ordem exata de publicação
 
