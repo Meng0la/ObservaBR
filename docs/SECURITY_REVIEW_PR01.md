@@ -30,7 +30,7 @@ Permanecem os avisos preexistentes de depreciação Fastify/pg e chunks Vite gra
 - Build: aprovado.
 - Gitleaks 8.30.1: zero achados nos diretórios versionáveis.
 - `npm audit`: zero vulnerabilidades conhecidas.
-- CI Linux: executa testes, Gitleaks, CodeQL, Semgrep OWASP e Trivy da imagem; o resultado do commit de remediação deve estar aprovado antes de qualquer publicação.
+- CI Linux do commit `5397a0b`: aprovado em https://github.com/Meng0la/ObservaBR/actions/runs/46020862524 — verify, Gitleaks, CodeQL, Semgrep OWASP, build e Trivy da imagem.
 
 Os testes cobrem negação do reader, imutabilidade para o writer, derivação dos contadores, cache, rate limit, timeout, limite de concorrência, TLS remoto, tag GCM explícita e isolamento do ambiente do backup. Relatórios brutos locais permanecem em `.tools/security-review` e não são versionados.
 
@@ -70,4 +70,4 @@ Não apagar migrations aplicadas, recibos, aliases, revisões, quarentena ou doc
 
 ## Parecer de prontidão
 
-O código fica **tecnicamente pronto para publicação controlada** quando o CI Linux do commit de remediação estiver integralmente aprovado. Isso não autoriza merge, deploy, migrations ou ativação da coleta. A publicação ainda depende de revisão do mantenedor, backup/restauração autorizado e autorização explícita para cada etapa operacional.
+O código está **tecnicamente pronto para publicação controlada** após aprovação integral do CI Linux do commit `5397a0b`. Isso não autoriza merge, deploy, migrations ou ativação da coleta. A publicação ainda depende de revisão do mantenedor, backup/restauração autorizado e autorização explícita para cada etapa operacional.
