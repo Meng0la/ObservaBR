@@ -90,3 +90,11 @@ Publicação futura deve ser coordenada, após autorização: aplicar o novo sch
 Migration local `20261127123000_security_hardening.sql` restringe o reader ao contrato público e torna bytes/recibos/observações/ausências/quarentena append-only para o writer. Contadores de ciclo são derivados dos recibos e ciclos encerrados não podem ser reabertos. O endpoint de cobertura recebeu orçamento próprio; banco remoto exige TLS com autenticação do servidor; imagens e Actions estão imutáveis; chave de backup não alcança `pg_dump`.
 
 Validação: 22 testes direcionados aprovados; suite completa com 43 aprovados e dois contratos externos ignorados; typecheck/build, Gitleaks e npm audit aprovados. CI Linux do commit `5397a0b` aprovou Semgrep OWASP, Trivy da imagem, verify, secrets e CodeQL. Nenhuma operação remota. A ordem de publicação exige as três migrations funcionais, novo runtime e somente então o hardening, conforme SECURITY_REVIEW_PR01.md.
+
+## Marco remoto autorizado — 27/11/2026
+
+Baseline imediatamente anterior: 2.764 records, 62 source_documents, 1.995 data_revisions, 2.616 collection_jobs, 62 api_snapshots, cinco enrichment_jobs, cinco entity_contexts e 44 enrichment_documents. O backup cifrado real reproduziu integralmente essas métricas em PostgreSQL isolado e verificou zero hashes inválidos. A sequência de revisões restaurou `last_value=1995` e `is_called=true`.
+
+As migrations funcionais `20261126160503`, `20261126171500` e `20261127110000` foram aplicadas em produção na ordem definida. O resultado pós-migration preservou todas as métricas do baseline, elevou o schema de 9 para 17 tabelas, todas com RLS, criou cinco linhas de justiça por categoria e não produziu ciclos ou coleta. A migration `20261127123000_security_hardening` não foi aplicada. O teste público existente passou sem deploy do runtime.
+
+Os consumidores ficaram suspensos durante backup, restauração e migrations. Após a prova, apenas o Scout complementar foi restaurado ao estado anterior; a coleta geral permanece manual. Os registros criados pelo conector Supabase usam versões operacionais geradas no momento da aplicação e nomes contendo os prefixos canônicos. Antes de qualquer `db push`, reconciliar o histórico mediante autorização específica para impedir tentativa de reaplicação.
