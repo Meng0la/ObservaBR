@@ -10,7 +10,7 @@ Etapa objetiva concluída em 27/11/2026 sobre `data-engineering-controlled-inges
 | SR-02 | Corrigido | Bytes e trilhas de coleta append-only para o worker; identidade/encerramento de ciclos protegidos; contadores derivados de recibos |
 | SR-03 | Corrigido | Limite específico, cache curto e limitado, concorrência máxima e timeout transacional na cobertura |
 | SR-04 | Corrigido | Conexões PostgreSQL remotas falham sem `verify-full` e CA confiável; conexões locais preservadas |
-| SR-05 | Corrigido | Actions fixadas por commit e imagens fixadas por digest obtido nas origens oficiais |
+| SR-05 | Corrigido | Actions fixadas por commit; imagens por digest oficial; runtime atualizado e sem gerenciador de pacotes |
 | SR-08 | Corrigido | Processo de dump recebe allowlist de ambiente e não herda chave de criptografia ou URL da aplicação |
 
 O relatório registra o resultado e os controles sem reproduzir procedimentos de exploração. A matriz completa da auditoria permanece no histórico local de trabalho até a conclusão das correções.
