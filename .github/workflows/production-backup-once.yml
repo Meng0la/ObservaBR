@@ -31,6 +31,7 @@ jobs:
             pg_dump --dbname="$DATABASE_URL" --format=plain --data-only \
               --enable-row-security --no-owner --no-acl --no-password --lock-wait-timeout=15s \
               --exclude-table=observabr.data_revisions_revision_seq \
+              --exclude-table-data=observabr.data_revisions_revision_seq \
               --table=observabr.api_snapshots \
               --table=observabr.collection_jobs \
               --table=observabr.collection_requests \
